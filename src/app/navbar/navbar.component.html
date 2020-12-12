@@ -1,0 +1,697 @@
+
+<div class="container-fluid" style="background-color: black;">
+ 
+
+    <!-- <div (mouseover)="changeText=true" (mouseout)="changeText=false">
+      <span *ngIf="!changeText">Hide</span>
+      <span *ngIf="changeText">Show</span>
+    </div> -->
+    <div class="row">
+      <div class="col-4">
+        <ul  >
+
+        <li  style="display: inline;">
+          <a href="/items/motherBoard" class="nav-link" style="color: white;" >MotherBoards </a>
+        </li>
+        <li  style="display: inline;">
+          <a class="nav-link" href="/items/memoryRam" style="color: white;" >Memory Ram</a>
+        </li>
+        <li  style="display: inline;">
+          <a class="nav-link" href="/items/cpu" style="color: white;">Cpus </a>
+        </li>
+        <li  style="display: inline;">
+          <a class="nav-link" href="/items/gpu" style="color: white;">Gpus </a>
+        </li>
+        <li  style="display: inline;">
+          <a class="nav-link" href="/items/cases" style="color: white;">Cases </a>
+        </li>
+       
+        
+       
+        <li  style="display: inline;">
+          <a class="nav-link" href="/items/powerSupply" style="color: white;float: right;">Power Supply </a>
+        </li>
+    
+        <!-- <a href="/cart"><i  class="fas fa-shopping-cart fa-3x" style="color: white;"></i></a> -->
+    
+      </ul>
+
+
+      </div>
+      <div class="col-8">
+
+        <div class="row">
+
+          <div style="display: inline;" class="col-6">
+            
+            <input [(ngModel)]="valueForSearch"  (keyup)="onKey($event)" style="color: white;background-color: black;border: 1px solid white;margin-top: 10px;width: 100%;" type="text" placeholder="Search"/>
+           <a (click)="GoTo(valueForSearch)" > <i style="color: white;float: right;margin-right: 5px;position: relative ;top:-20px;color: white;"class="fas fa-search fa-1x"></i></a>
+            <!-- <div style="height: 25px;width:100% ;border: 1px solid white;margin-top: 10px;">
+              
+
+            </div> -->
+            
+           
+           
+           
+           
+           
+                     </div>
+
+                     <div style="display: inline;" class="col-4">
+            
+
+                      <ul style="list-style-type: none;margin-left: 2px;">
+                        <li class="nav-item">
+                          <!-- <a class="nav-link disabled" href="#">Disabled</a> -->
+                        </li>
+                        <li  class="nav-item">
+                          <a style="color: orange;" *ngIf="!checkLoggingIn()"  class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li  class="nav-item">
+                          <!-- <a   class="nav-link" href="/contact-us">Contact Us</a> -->
+                        </li>
+                        <li  class="nav-item">
+                          <a  style="color: orange;" *ngIf="!checkLoggingIn()"  class="nav-link" href="/signup">Sign up</a>
+                        </li>
+                        
+                        <li (mouseover)="changeText3=true" (mouseleave)="changeText3=false"  style="float: right;" id="userNameHover"  class="nav-item">
+
+                          <i   *ngIf="checkLoggingIn()" style="color: aliceblue;display: inline;" class="far fa-user fa-2x"></i>
+                          <a *ngIf="checkLoggingIn()" href="/profile/{{_id}}"  style="color: aliceblue;display: inline;" > Welcome :{{userName}}</a>
+                         
+                            
+                           <div *ngIf="changeText3"  style="height: 190px; width: 450px;background-color: #F0F8FF;position:fixed;z-index:5;border: orange 1px solid; " >
+                            
+                            
+                          <div  id="hover"   class="row" style="width: 250px;"  >
+                           <div   style="color: black;"  class="col-12"> <h2 style="font-weight: bolder;"><a href="/userOrderHistory/{{_id}}">Order History</a></h2>
+                            <div style="color: black;border-bottom: black 1px solid;width: 450px;"></div>
+                    
+                             
+                            </div>
+                          </div>
+                          <div id="hover" class="row" style="width: 250px;"  >
+                            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">User Profile</h2>
+                              <div style="color: black;border-bottom: black 1px solid;width: 450px;"></div>
+                            </div>
+                          </div>
+
+                          <div id="hover" class="row" style="width: 250px;"  >
+                            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">Go To Cart</h2>
+                              <div style="color: black;border-bottom: black 1px solid;width: 450px;"></div>
+                            </div>
+                          </div>
+
+                          <div id="hover" class="row" style="width: 250px;"  >
+                            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">Log Out</h2>
+                              <!-- <div style="color: black;border: black 1px solid;width: 450px;"></div> -->
+                            </div>
+                            <!-- <div  style="color: black;" class="col-6"> <h2 style="font-weight: bolder">Log Out</h2> -->
+                            <!-- </div> -->
+                          </div>
+                        
+                          
+                          </div>
+                           
+
+
+
+                          <!-- <button  (click)="logout()"  mat-button>LogOut</button> -->
+                          <!-- <button (click)="login()"  >Log In</button> 
+                          <button (click)="logout()"  >Log Out</button> -->
+                          
+                        </li>
+                        <li style="color:white;margin-top: 3px;margin-left: 35px;"  class="nav-item">
+                          <button *ngIf="checkLoggingIn()" (click)="onLogOut()"  mat-button>LogOut</button>
+                          <div  *ngIf="checkLoggingIn()" style="margin-top: 5px;float: right ;background-image: url({{imagePath}});">
+                            <a style="color: white;" href="/profile/{{_id}}">
+                            <img style="border: 1px solid white; width: 40px;height: 35px;border-radius: 10px;" height="50px" width="50px" src="{{imagePath}}">
+                            </a>
+                          </div>
+                      
+                        </li>
+                      </ul>
+          
+          
+          
+          
+                    </div>
+
+          <div  style="display: inline;" class="col-2">
+            <div  class="row">
+              <div style="display: inline;" class="col-4">
+              <a href="/cart"><i  class="fas fa-shopping-cart fa-2x" style="color: white;"></i></a>
+              </div>
+              <div style="display: inline;" class="col-8">
+               
+             
+               <p style="color: white;display: inline;">$100 </p>
+               <br>
+               <p style="color: white;display: inline;">2 items</p>
+       
+              </div>
+            
+            
+            </div>
+          </div>
+          
+          
+        </div>
+        
+
+        
+      </div>
+    </div>
+    
+
+  
+
+  
+  <div   style="border-top: #636466 2px solid;width: 100%;">
+
+  </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark " style="background-color: black		;">
+  <a class="navbar-brand" href="#">
+   <a href="/">
+    <img  style="height: 50px;width: 50px;border-radius: 65px;"  src="https://previews.123rf.com/images/putracetol/putracetol1805/putracetol180502182/101179920-science-computer-logo-icon-design.jpg" alt="logo">
+  </a> 
+  </a>
+  <a id="menuNav" style="font-size:xx-large;color: white; " class="navbar-brand"  href="#">Mother'sBoard </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+   
+
+    <ul class="navbar-nav mr-auto"  style="font-size:larger;color: white; ">
+      <li class="nav-item" style="font-size:larger;color: white; ">
+       
+      </li>
+      <!-- <li class="nav-item active " style="font-size:larger;color: white; ">
+        <a class="nav-link" href="/home">HOME <span class="sr-only">(current)</span></a>
+      </li> -->
+      <li  (mouseover)="changeText=true" (mouseleave)="changeText=false" class="nav-item">
+        <a id="menuNav" class="nav-link"  href="/items/gpu" style="font-size:larger;color: white;margin-left: 40px; "  >GRAPHICS
+          <i class="fas fa-caret-down" style="color: white;" ></i>
+        </a>
+       <div *ngIf="changeText"  style="height: 400px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:5;top: auto;border: orange 1px solid; margin-left: 60px;" >
+        
+      <div  id="hover"   class="row" style="width: 250px;"  >
+       <div   style="color: black;"  class="col-12">
+        <a id="hover" style="text-decoration: none;  "  href="/COMPANY/ASUS"> <h2 style="font-weight: bolder">MSI</h2></a> 
+        <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+
+         
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div   class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/ASUS"> <h2 style="font-weight: bolder">ASUS</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/ASUS"> <h2 style="font-weight: bolder">GIGABYTE</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/SAPPIRE"> <h2 style="font-weight: bolder">SAPPIRE</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/POWERCOLOR"> <h2 style="font-weight: bolder">POWER COLOR</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/SAPPIRE"> <h2 style="font-weight: bolder">ZOTAC</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/ACER"> <h2 style="font-weight: bolder">ACER</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/COMPANY/TURBO"> <h2 style="font-weight: bolder">TURBO</h2></a> 
+          
+        </div>
+      </div>
+      
+      </div>
+       
+      </li>
+
+
+      <li  (mouseover)="getAccessories=true" (mouseleave)="getAccessories=false" class="nav-item">
+        <a id="menuNav" class="nav-link"  href="/items/gpu" style="font-size:larger;color: white; "  >ACCESSORIES
+          <i class="fas fa-caret-down" style="color: white;" ></i>
+        </a>
+        <div *ngIf="getAccessories"  style="height: 200px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:1050;top: auto;border: orange 1px solid;color: black; " >
+          <div id="hover" class="row" style="width: 250px;"  >
+            <div     class="col-12"> <h2 style="font-weight: bolder">
+             <a id="hover" style="text-decoration: none;  "  href="/items/mouse"> <h2 style="font-weight: bolder">MOUSE</h2></a> 
+            </h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover" class="row" style="width: 250px;"  >
+            <div     class="col-12">
+              <a id="hover" style="text-decoration: none;  "  href="/items/keyboard"> <h2 style="font-weight: bolder">KEYBOARD</h2></a> 
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover" class="row" style="width: 250px;"  >
+            <div   class="col-12">
+              <a id="hover" style="text-decoration: none;  "  href="/items/speakers"> <h2 style="font-weight: bolder">SPEAKERS</h2></a> 
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover" class="row" style="width: 250px;"  >
+            <div   class="col-12"> 
+              <a id="hover" style="text-decoration: none;  "  href="/items/HEADSETS"> <h2 style="font-weight: bolder">HEADSETS</h2></a> 
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+         
+        
+        
+        
+        
+        </div>
+       
+      </li>
+
+
+
+
+
+
+
+
+      <li (mouseover)="changeText2=true" (mouseleave)="changeText2=false" class="nav-item">
+        <a id="menuNav" class="nav-link" href="/items/cpu" style="font-size:larger;color: white; ">CPUS
+          <i class="fas fa-caret-down" style="color: white;" ></i></a>
+
+          <div *ngIf="changeText2"  style="height: 400px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:5;top: auto;border: orange 1px solid; " >
+        
+      <div  id="hover"   class="row" style="width: 250px;"  >
+       <div   style="color: black;"  class="col-12"> 
+        <a id="hover" style="text-decoration: none;  "  href="/KEY/I7"> <h2 style="font-weight: bolder">INTEL I7</h2></a> 
+        <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+
+         
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/KEY/I5"> <h2 style="font-weight: bolder">INTEL I5</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/KEY/I3"> <h2 style="font-weight: bolder">INTEL I3</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/KEY/RYZEN7"> <h2 style="font-weight: bolder">AMD RYZEN 7</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/KEY/I5"> <h2 style="font-weight: bolder">AMD RYZEN 5</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/KEY/RYZEN3"> <h2 style="font-weight: bolder">AMD RYZEN 3</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+     
+      
+   
+   
+   
+   
+   
+   
+   
+   
+   
+    </div>
+      </li>
+
+
+
+
+      <li  (mouseover)="changeText7=true" (mouseleave)="changeText7=false" class="nav-item">
+        <a id="menuNav" class="nav-link"  href="/products" style="font-size:larger;color: white; "  >PRODUCTS
+          <i class="fas fa-caret-down" style="color: white;" ></i>
+        </a>
+        
+       <div *ngIf="changeText7"  style="height: 400px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:5;top: auto;border: orange 1px solid; " >
+        
+      <!-- <div  id="hover"   class="row" style="width: 250px;"  >
+       <div (mouseover)="getAccessories=true"   style="color: black;"  class="col-12"> <h2 style="font-weight: bolder;">ACCESSORIES</h2>
+        <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+
+         
+        </div> -->
+
+         <!-- <div *ngIf="getAccessories"  style="height: 200px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:1050;right: 44%;;top: auto;border: orange 1px solid; " >
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div    style="color: black;" class="col-12"> <h2 style="font-weight: bolder">MOUSES</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div    style="color: black;" class="col-12"> <h2 style="font-weight: bolder">KEYBOARD</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">SPEAKERS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">HEADSETS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">PRINTERS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+        
+        
+        
+        
+        </div> -->
+        <!-- <div *ngIf="getAccessories"  style="height: 200px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:1050;right: 44%;;top: auto;border: orange 1px solid; " >
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div    style="color: black;" class="col-12"> <h2 style="font-weight: bolder">MOUSES</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div    style="color: black;" class="col-12"> <h2 style="font-weight: bolder">KEYBOARD</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">SPEAKERS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">HEADSETS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+          <div id="hover2" class="row" style="width: 250px;"  >
+            <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">PRINTERS</h2>
+              <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+            </div>
+          </div>
+        
+        
+        
+        
+        </div> -->
+  
+
+
+      <!-- </div> -->
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/items/coolingSystem"> <h2 style="font-weight: bolder">COOLING SYSTEM</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/items/laptops"> <h2 style="font-weight: bolder">LAPTOPS</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div   style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/items/consoles"> <h2 style="font-weight: bolder">CONSOLES</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/items/HDD"> <h2 style="font-weight: bolder">HDD</h2></a> 
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div   style="color: black;" class="col-12">
+          <a id="hover" style="text-decoration: none;  "  href="/items/ssds"> <h2 style="font-weight: bolder">SSD</h2></a> 
+
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+      <div id="hover" class="row" style="width: 250px;"  >
+        <div  style="color: black;" class="col-12"> 
+          <a id="hover" style="text-decoration: none;  "  href="/products"> <h2 style="font-weight: bolder">ALL PRODUCTS</h2></a> 
+
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+        </div>
+      </div>
+     
+      
+      </div>
+       
+      </li>
+
+
+
+      <!-- <li class="nav-item">
+        <a (mouseover)="changeText7=true" (mouseleave)="changeText7=false" id="menuNav" class="nav-link" href="/products" style="font-size:larger;color: white; ">PRODUCTS
+          <i class="fas fa-caret-down" style="color: white;" ></i></a>
+      </li>
+
+
+      <div *ngIf="changeText7"  style="height: 400px; width: 250px;background-color: #F0F8FF;position:fixed;z-index:5;top: 115px;left:29%;border: orange 1px solid; " >
+        
+        <div  id="hover"   class="row" style="width: 250px;"  >
+         <div   style="color: black;"  class="col-12"> <h2 style="font-weight: bolder;">Accessories </h2>
+          <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+  
+           
+          </div>
+        </div>
+        <div id="hover" class="row" style="width: 250px;"  >
+          <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">Laptops </h2>
+            <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+          </div>
+        </div>
+        <div id="hover" class="row" style="width: 250px;"  >
+          <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">Cooling System</h2>
+            <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+          </div>
+        </div>
+        <div id="hover" class="row" style="width: 250px;"  >
+          <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">Consoles</h2>
+            <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+          </div>
+        </div>
+        <div id="hover" class="row" style="width: 250px;"  >
+          <div  style="color: black;" class="col-12"> <h2 style="font-weight: bolder">All Products</h2>
+            <div style="color: black;border-bottom: black 1px solid;width: 250px;"></div>
+          </div>
+        </div>
+       
+        
+     
+     
+     
+     
+     
+     
+     
+     
+     
+      </div> -->
+
+
+
+
+      <!-- <li class="nav-item">
+        <a id="menuNav" *ngIf="checkLoggingIn()" class="nav-link" href="/users" style="font-size:larger;color: white; ">USERS
+          <i class="fas fa-caret-down" style="color: white;" ></i></a>
+      </li> -->
+      <!-- <li class="nav-item">
+        <a  id="menuNav" class="nav-link" href="/search/item" style="font-size:larger;color: white; ">SEARCH</a>
+      </li> -->
+      <!-- <li class="nav-item">
+        <a  id="menuNav" *ngIf="checkLoggingIn()" class="nav-link" href="/create" style="font-size:larger;color: white; ">CREATE</a>
+      </li> -->
+      <li class="nav-item">
+        <a  id="menuNav" class="nav-link" href="/contact-us" style="font-size:larger;color: white; ">CONTACT US</a>
+      </li>
+
+      <li *ngIf="isAdmin" class="nav-item dropdown" (mouseover)="changeText4=true" (mouseleave)="changeText4=false">
+        <a style="font-size:larger;color: white; "  id="menuNav" *ngIf="checkLoggingIn()" class="nav-link dropdown-toggle"  >
+          ADMIN ONLY
+        </a>
+
+        <div *ngIf="changeText4"  style="height: 300px; width: 320px;background-color: #F0F8FF;position:fixed;z-index:5;border: orange 1px solid; " >
+                            
+                            
+          <div     class="row" style="width: 250px;"  >
+           <div    style="color: black;"  class="col-12"><a href="/signup" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">Create User</h2></a>
+            <div style="color: black;border-bottom: black 1px solid;width: 320px;"></div>
+    
+             
+            </div>
+          </div>
+          <div  id="hover"   class="row" style="width: 250px;"  >
+            <div    style="color: black;"  class="col-12"><a href="/create" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">Create Product</h2></a>
+              <div style="color: black;border-bottom: black 1px solid;width: 320px;"></div>
+     
+              
+             </div>
+           </div>
+           <div  id="hover"   class="row" style="width: 250px;"  >
+            <div    style="color: black;"  class="col-12"><a href="/users" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">User List/Delete/Update</h2></a>
+              <div style="color: black;border-bottom: black 1px solid;width: 320px;"></div>
+     
+              
+             </div>
+           </div>
+           <div  id="hover"   class="row" style="width: 260px;"  >
+            <div    style="color: black;"  class="col-12"><a href="/list" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">Items List/Delete/Update</h2></a>
+              <div style="color: black;border-bottom: black 1px solid;width: 320px;"></div>
+     
+              
+             </div>
+           </div>
+          
+           
+           <div  id="hover"   class="row" style="width: 250px;"  >
+            <div    style="color: black;"  class="col-12"><a href="/orders" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">Order List</h2></a>
+              <div style="color: black;"></div>
+              <div style="color: black;border-bottom: black 1px solid;width: 320px;"></div>
+
+              
+             </div>
+           </div>
+
+           <div  id="hover"   class="row" style="width: 250px;"  >
+            <div    style="color: black;"  class="col-12"><a href="/categories" style="text-decoration: none; color: black;"> <h2 id="hover2" style="font-weight: bolder;">Add Category</h2></a>
+              <div style="color: black;"></div>
+     
+              
+             </div>
+           </div>
+        </div>
+        <!-- <div *ngIf="changeText4" class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a *ngIf="checkLoggingIn()"  class="dropdown-item" href="/create">Create Product</a>
+          <a class="dropdown-item" href="/list">Edit Or Delete Product</a>
+          
+          <div class="dropdown-divider"></div>
+          <a *ngIf="checkLoggingIn()"  class="dropdown-item" href="/signup">Create User</a>
+          <a *ngIf="checkLoggingIn()"  class="dropdown-item" href="/users">Edit Or Delete Users</a>
+        </div> -->
+
+
+        
+
+        
+        
+    
+
+        
+        
+      </li>
+      <li class="nav-item">
+
+        
+        <a   style="color: aliceblue;margin-left: 175px;font-size: medium;" href="#">Location:{{city}}/{{country}}</a>
+      </li>
+
+      <li class="nav-item">
+        <!-- <a class="nav-link disabled" href="#">Disabled</a> -->
+        <a   style="color: aliceblue;margin-left: 35px;font-size: medium;margin-top: 200px;" href="#">
+          Temperature:{{currentTemp}}°
+        <!-- <img src="http://openweathermap.org/img/wn/01d@2x.png" style="height: 35px;width: 40px;"> -->
+        </a>
+                <img src="{{img}}" style="height: 30px;width: 35px;margin-top: -5px;">
+
+      </li>
+
+
+      <li style="margin-left: 33px;"  class="nav-item">
+       Time: {{finalTime}}
+      </li>
+      <li  class="nav-item">
+        <!-- important --------------------
+        <a   class="nav-link" href="/contact-us">Contact Us</a> -->
+      </li>
+      <li  class="nav-item">
+        <!-- <a *ngIf="!checkLoggingIn()"  class="nav-link" href="/signup">Sign up</a> -->
+      </li>
+      <li  class="nav-item">
+        <!-- <button *ngIf="checkLoggingIn()" (click)="onLogOut()"  mat-button>LogOut</button> -->
+      </li>
+      <li style="float: right;margin-top: 20px;"  class="nav-item">
+        <!-- <i style="color: aliceblue;margin-top: 5px;" class="far fa-user fa-2x"></i> -->
+        
+        <!-- <a href="/profile/{{_id}}"  style="color: aliceblue;display: inline;" > Welcome :{{userName}}</a> -->
+       
+        <!-- <button  (click)="logout()"  mat-button>LogOut</button> -->
+        <!-- <button (click)="login()"  >Log In</button> 
+        <button (click)="logout()"  >Log Out</button> -->
+        
+      </li>
+    
+      
+    </ul>
+     <!-- <div  class="row">
+       <div class="col-4">
+       <a href="/cart"><i  class="fas fa-shopping-cart fa-3x" style="color: white;"></i></a>
+       </div>
+       <div class="col-8">
+        
+      
+        <p style="color: white;float: right;">$100</p>
+        <p style="color: white;float: right;">2 items</p>
+
+       </div>
+     
+     
+     </div> -->
+    
+    
+    <form class="form-inline my-2 my-lg-0 ">
+      
+     <app-search-item></app-search-item>
+
+
+    </form>
+  </div>
+</nav>

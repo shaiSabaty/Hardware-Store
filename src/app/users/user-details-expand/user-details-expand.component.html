@@ -1,0 +1,150 @@
+<form [formGroup]="form"   >
+
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-4">
+
+          <!-- <mat-form-field>
+            <mat-label>Address << using the directive >></mat-label>
+            <input matInput
+                 matGoogleMapsAutocomplete
+                
+                 (onAutocompleteSelected)="onAutocompleteSelected($event)"
+                 (onLocationSelected)="onLocationSelected($event)">
+          </mat-form-field> -->
+          
+          
+            <div style="margin-top: 55px;" class="container" fxLayout="column" fxLayoutAlign="center">
+           
+              <div fxFlex>
+                <agm-map [latitude]="latitude" [longitude]="longitude" [scrollwheel]="false" [zoom]="zoom">
+                  <agm-marker [latitude]="latitude" [longitude]="longitude"></agm-marker>
+                </agm-map>
+              </div>
+           
+              <!-- <div fxFlex fxFlexAlign="center"
+                   class="autocomplete-container"
+                  >
+                <mat-google-maps-autocomplete (onAutocompleteSelected)="onAutocompleteSelected($event)"
+                                              (onLocationSelected)="onLocationSelected($event)"
+                                              (onGermanAddressMapped)="onGermanAddressMapped($event)">
+                </mat-google-maps-autocomplete>
+              </div> -->
+           
+            </div>
+          
+          
+          <!-- <h1>Current myDate:{{date}}</h1> -->
+
+          <div style="border: solid 1px #ced4da;margin-top: 25px;width: 95%;margin-left: 15px;border-radius: 5px;height: 270px;">
+            <h3>Current currentTime:{{finalTime}}</h3>
+            <h3>Current location:{{location}}</h3>
+            <h3>Current date:{{date}}</h3>
+            <h3>Current Temperature In Celsios:{{temp}}</h3>
+            <img src="{{img}}"/>
+          
+          </div>
+         
+          
+
+
+
+        </div>
+        <div  class="col-6">
+            <div style="margin-top: 50px;" class="row">
+                <div  style="border: solid 1px black;height: 50px;background-color: #f3f3f3;" class="col-1">
+                    <a  href="/cart"><i style="color: black;margin-top: 7px;"  class="fas fa-shopping-cart fa-2x" ></i></a>
+                </div>
+                <div style="border: solid 1px black;height: 50px;background-color: #455570;color: white;" class="col-3"><h1 class="itemMenu" style="margin-top: 7px;"> User Details</h1></div>
+                <div style="border: solid 1px black;height: 50px;background-color: #f3f3f3;"class="col-3"><h1 class="itemMenu" style="margin-top: 7px;">Payment</h1></div>
+                <div style="border: solid 1px black;height: 50px;background-color: #f3f3f3;" class="col-5"><h1 class="itemMenu" style="margin-top: 7px;">Confirmation</h1></div>
+                 <br>
+                 <h1 style="margin-top: 10px;">Add Address User:</h1>
+            </div>
+            <div  class="row">
+                <div class="col-8" style="height: 600px;width: 100%;;border: 1px solid black;background-color: #ebf3fd;">
+                    
+                <h4>First Name:</h4>
+
+
+                
+                <input name="firstName" type="text" class="form-control"  formControlName="firstName" placeholder="Enter First Name" value={{firstName}}>
+
+                <h4>Last Name:</h4>
+                <input name="lastName" type="text" class="form-control"  formControlName="lastName" placeholder="Enter Last Name" value={{lastName}}>
+                <h4>Country:</h4>
+                <mat-select style="background-color: white;height: 35px;border-radius: 5px;border:  1px solid #ced4da;"  placeholder="Pick a Country" formControlName="country"  (selectionChange)="changeClient($event.value)"  >
+    
+                    <mat-option  *ngFor="let country of arrTemp"  value={{country}} >{{country}}</mat-option>
+                   
+                    <br>
+                    
+                  </mat-select>
+                
+                 <br>
+                 
+                  <mat-select style="margin-top: 20px;background-color: white;height: 35px;border:  1px solid #ced4da;border-radius: 5px;" placeholder="Pick a city" formControlName="city"   >
+                    <br>
+                    <mat-option  *ngFor="let city of arrCity" (click)="cityChecked()" value={{city}} >{{city}}</mat-option>
+                   
+                  </mat-select>
+                  
+                <h4 style="margin-top: 10px;">Full Address:</h4>
+                <!-- <input type="text" class="form-control" formControlName="address" placeholder="Enter Full Address"  > -->
+                
+                <div fxFlex fxFlexAlign="center"
+                class="autocomplete-container" style="background-color: white;height: 80px;border:  1px solid #ced4da;border-radius: 5px;"
+               >
+                              <!-- <input type="text" class="form-control" formControlName="address" placeholder="Enter Full Address"  > -->
+
+             <mat-google-maps-autocomplete 
+             
+             
+             (onAutocompleteSelected)="onAutocompleteSelected($event)"
+                                           (onLocationSelected)="onLocationSelected($event)"
+                                           (onGermanAddressMapped)="onGermanAddressMapped($event)">
+             </mat-google-maps-autocomplete>
+           </div>
+
+           
+          
+
+                <h4>Postal Code:</h4>
+                <input type="text" class="form-control" name="zipCode" formControlName="zipCode"  placeholder="Enter Postal Code" value="{{zipCode}}" />
+                
+                <h4>Phone Number:</h4>
+                <input  type="text" class="form-control"  formControlName="phoneNumber" placeholder="Enter Phone Number" >
+                </div>
+                <div class="col-4">
+                   <div style="background-color: #e5e9ec;height: 300px;width: 100%;">
+                    <h2 style="color:black;background-color: orange;text-align: center;">Order Summery</h2>
+                    <div style="height: 200px; width: 90%;background-color: white;margin-left: 11px;margin-bottom: 20px;" >
+                    <h3>PRICE : {{price}}$</h3>
+                    <h3>VAT:{{vat}}$</h3>
+                    <div style="border-top: 1px solid black;"></div>
+                    <h1>TOTAL PRICE: {{totalPrice}}$</h1>
+                    </div>
+
+                    <div style="background-color: #ffa33b;color: black;border: black 1px solid;margin-left: 25px;height: 30px;margin-top: -10px;width: 75%;"> 
+                      <a href="/payment" (click)=saveUserDetails() >
+                        <h3 style="color: black;text-align: center;">Continue To Payment<i class="fas fa-caret-right"></i></h3>
+                     
+            
+            
+                         </a>
+                    </div>
+                  
+
+                </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-2"></div>
+
+    </div>
+</div>
+
+</form>

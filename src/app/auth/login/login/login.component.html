@@ -1,0 +1,79 @@
+
+<mat-card>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form (submit)="onLogin(loginForm)" *ngIf="!isLoading" #loginForm="ngForm"  >
+  
+  
+      <mat-form-field  ><br>
+        <input placeholder="Enter email:" name="email" ngModel matInput type="email" #emailInput="ngModel"  required email  />
+        <mat-error style="color: blueviolet" *ngIf="emailInput.invalid">Please Enter a valid email</mat-error>
+      </mat-form-field><br>
+ 
+      <mat-form-field  ><br>
+        <input name="password" ngModel placeholder="Enter password:" matInput type="password" required #passwordInput="ngModel"  />
+        <mat-error style="color: blueviolet" *ngIf="passwordInput.invalid" >Please Enter a valid password</mat-error>
+      </mat-form-field><br>
+  
+    <button mat-raised-button
+            color="primary" style="margin-left: 0px;"
+            type="submit" *ngIf="!isLoading" >Log in</button>
+  
+            <mat-spinner *ngIf="isLoading"></mat-spinner>
+
+            
+  
+            <mat-spinner *ngIf="isLoading"></mat-spinner>
+
+           
+            
+            <!-- <div *ngIf="check()" class="alert alert-danger">
+              <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+            </div> -->
+
+            <div>
+              <h3 style="color: blue;"><a href="/forgot">Forgot Password?</a></h3>
+            </div>
+           
+
+            <div #script="" style.display="none">
+              <ng-content></ng-content>
+          </div>
+  </form>
+  
+  </mat-card>
+
+  <!-- <a (click)="googlelogin()"><div mat-raised-button
+            color="primary"  style="margin-left: 25px;margin-left:850px ;width: 200px;height: 100px;border: 1px solid black;"
+            type="submit" *ngIf="!isLoading"  >Sign in with Google </div>
+  
+            <mat-spinner *ngIf="isLoading"></mat-spinner></a>
+
+            <button mat-raised-button
+            color="primary" style="margin-left: 25px;"
+            type="submit" *ngIf="!isLoading" (click)="facebookLogIn()" >Sign in with Facebook</button> -->
+  
+ 
+            <div class="col s12 m6 offset-m3 center-align">
+              <a type="submit" *ngIf="!isLoading" class="oauth-container btn darken-4 white black-text" (click)="googlelogin()" style="text-transform:none">
+                  <div style="border: 1px solid #a8a8a8; box-shadow: 1px 1px;margin-left:850px;margin-top: -100px;" class="left">
+                      <img width="30px" style="margin-top:7px; margin-right:8px" alt="Google sign-in" 
+                          src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                          <h4 style="font-weight: bolder;">Login with Google</h4>
+                        </div>
+                 
+              </a>
+          </div>
+
+          
+          <div class="col s12 m6 offset-m3 center-align">
+            <a type="submit" *ngIf="!isLoading" class="oauth-container btn darken-4 white black-text" (click)="facebookLogIn()" style="text-transform:none">
+                <div style="border: 1px solid #a8a8a8; box-shadow: 1px 1px;margin-left:650px;margin-top: -120px;" class="left">
+                    <img width="30px" style=" margin-top:7px;margin-right:8px" alt="Google sign-in" 
+                        src="https://www.facebook.com/images/fb_icon_325x325.png" />
+                        <h4 style="font-weight: bolder;">Login with Facebook</h4>
+                      </div>
+               
+            </a>
+        </div>
+          
+         

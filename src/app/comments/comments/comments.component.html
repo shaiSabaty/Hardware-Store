@@ -1,0 +1,41 @@
+<div class="container">
+    <h2>Comments:</h2>
+    
+    <div class="example-button-row" *ngIf="ifLoggedIn"  style="border:1px solid #dfdfdf" class="container " >
+        <img src="{{userImg}}" style="border-radius: 50%;width: 35px;height: 35px;">
+        <h4  style="display: inline;margin-left: 50px;font-weight: bolder;">{{userName}}</h4>
+         <mat-form-field style="display: inline;margin-left: 100px;" class="example-full-width" >
+            <mat-label ></mat-label>
+            <textarea matInput placeholder=" Enter A Comment  ..." [(ngModel)]="commentMessage"></textarea>
+            <button style="border: 1px solid blue;float: right;" (click)="addAComment(commentMessage)" mat-button color="primary">Add A Comment</button>
+
+          </mat-form-field>
+          <!-- <textarea  rows="10" ngModel placeholder="Enter message here:" matInput type="text" required #messageInput="ngModel" ></textarea> -->
+
+    </div>
+    <div *ngIf="!ifLoggedIn"><button mat-button color="primary" (click)="addAComment()">Add A Comment</button></div>
+    <div style="border:1px solid #dfdfdf" *ngFor="let item of commentsArr" >
+        <img style="border-radius: 50%;width: 35px;height: 35px;margin-top: 35px;margin-left: 20px;"  src="{{item.userImg}}"/> 
+        <h4  style="display: inline;margin-left: 50px;font-weight: bolder;">{{item.userName}}</h4>
+
+        <!-- <mat-form-field style="display: inline;margin-left: 100px;" class="example-full-width">
+            <mat-label></mat-label>
+            <textarea matInput placeholder="Ex. It makes me feel...">{{item.commentMessage}}</textarea>
+          </mat-form-field> -->
+
+          <h5 style="margin-left: 100px;margin-top: -20px;">{{item.commentMessage}}</h5>
+          <i style="float: right;display: inline;margin-top: -52px;border: 1 px solid #dfdfdf; margin-right: 25px;" class="fas fa-thumbs-down fa-2x	"></i>
+           <a href="#" style="float: right;font-size: large;"> <p style="margin-right: 35px;">{{item.like}}</p> </a>
+         
+          <i style="float: right;margin-right: 55px;display: inline;margin-top: -50px;" class="fas fa-thumbs-up fa-2x	"></i> <a href="#" style="float: right;font-size: large;"> <p style="margin-right: 20px;">{{item.dislike}}</p>  </a>
+
+        <h6 style="display: inline;">{{item.date}}</h6>
+    
+        
+
+
+    </div>
+    
+
+
+</div>

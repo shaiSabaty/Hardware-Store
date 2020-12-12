@@ -1,0 +1,122 @@
+mat-card{
+  width: 80%;
+  margin: auto;
+
+}
+
+
+mat-form-field,
+textarea{
+  width: 100%;
+}
+
+main{
+  margin-top: 1rem;
+  width: 80%;
+  margin: auto;
+}
+.inputTitle{
+  margin-top: 5rem;
+  margin-top: 1rem;
+  width: 80%;
+  margin: auto;
+}
+#image{
+
+}
+
+
+
+
+
+
+
+
+
+.topMenu{
+
+  background-color: #00283a;
+  height: 175px;
+  width: 100%;
+}
+#imgNewEgg{
+
+ height: 100%; 
+ margin-top: -250px;
+ margin-right: 19px;
+}
+
+.header-logo-bg {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -65px 0 0 -10px;
+  width: 130px;
+  height: 130px;
+  background: url(//images10.newegg.com/WebResource/Themes/2005/Nest/header_bg_blue.png) no-repeat center center;
+  background-size: 130px;
+}
+
+.w-100 {
+  width: 135%!important;
+}
+
+
+.checked {
+  color: orange;
+}
+
+#control p{
+color:black;
+font-weight: bold;
+
+
+}
+#control p:hover{
+  color:blue;
+ 
+ 
+   }
+
+
+   #menuDetails ul li a{
+   color:black;
+   
+   font-size: small;
+
+   }
+
+   #menuDetails ul li {
+      
+      padding: 10px;
+      font-size: small;
+   }
+
+   #menuDetails{
+       color:black;
+   }
+
+
+      
+#menuSmall div{
+  color:black;
+}
+
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  
+}
+
+#hoverHomePic:hover{
+background-color: black;
+color: white;
+
+}
+
+#blackHover:hover{
+  background-color: #545353;
+ 
+}

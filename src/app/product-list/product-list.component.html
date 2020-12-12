@@ -1,0 +1,46 @@
+<div style="margin-top: 10px"></div>
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<mat-accordion multi="true" *ngIf="products.length>0 && !isLoading">
+  <div style="margin-top: 10px" ></div>
+  <mat-expansion-panel class="inputFiled" *ngFor="let product of products" >
+
+      <mat-expansion-panel-header>
+
+        {{product.name}}
+
+      </mat-expansion-panel-header>
+
+
+    <p>name:</p>
+    {{product.name}}
+    <p>category:</p>
+    {{product.category}}
+    <p>manufacturer:</p>
+    {{product.manufacturer}}
+    <p>company:</p>
+    {{product.company}}
+    <p>price:</p>
+    {{product.price}}
+    <p>description:</p>
+    {{product.description}}
+    <p>numOfStars:</p>
+    {{product.numOfStars}}
+    <p>imgPathCompanyLogo:</p>
+    {{product.imgPathCompanyLogo}}
+    <p>_id:</p>
+    {{product._id}}
+     <div class="productImage">
+   <img [src]="product.imgPath" [alt]="product.name">
+
+     </div>
+   
+    <mat-action-row >
+     <a  *ngIf="checkConnections()" [routerLink]="['/edit',product._id]" (click)="updateProduct(product._id)" mat-button color="primary">Edit</a>
+      <button *ngIf="checkConnections()"  (click)="deleteProduct(product._id)" color="warn" mat-button>Delete</button>
+    </mat-action-row>
+  </mat-expansion-panel>
+
+</mat-accordion>
+
+<p  class="mat-body-strong info-text" *ngIf="products.length <= 0 && !isLoading">No Products Added Yet!</p>
+<div style="margin-top: 500px">.</div>

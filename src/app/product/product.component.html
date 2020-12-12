@@ -1,0 +1,43 @@
+<p>product works!</p>
+
+
+<div style="height: 600px" class="d-inline-flex p-2" *ngFor="let product of products ">
+
+
+  <div class="card" style="width: 18rem;">
+<!--    <img src="{{gpu.imgPathCompanyLogo}}" >-->
+    <img class="card-img-top" src="{{product.imgPath}}" >
+
+    <img style="margin-top: 10px" width="80px" height="28px" src="{{product.imgPathCompanyLogo}}">
+
+
+
+    <div id="start"></div>
+
+
+
+    <div class="card-body">
+      <h5 class="card-title">{{product.name}}</h5>
+
+      <div style="display: inline;margin-left: 5px" *ngFor="let number of [0,1,2,3,4] "  >
+        <p style="display: inline" *ngIf="number<product.numOfStars">
+          <i style="color: #fbb535" class="fa fa-star" aria-hidden="true"></i></p>
+      </div >
+
+
+      <p class="card-text">{{product.description}}</p>
+      <h5 class="card-title">{{product.price}}</h5>
+      <a style="margin-bottom: 10px" href="/item/{{product._id}}" class="btn btn-primary">Show Item</a>
+
+      <ul *ngFor="let item of list">
+        <li >
+              {{list}}
+      </li>
+    
+    
+    </ul>
+    </div>
+
+  </div>
+</div>
+

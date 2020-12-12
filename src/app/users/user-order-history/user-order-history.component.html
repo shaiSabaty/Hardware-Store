@@ -1,0 +1,63 @@
+<!-- <div *ngFor="let item of arr">
+    {{item.date}}
+  
+ 
+
+
+
+</div>
+
+<p *ngFor="let a of products">
+   
+    {{a.name}}
+    {{a.price}}
+</p> -->
+
+
+<div style="margin-top: 20px;" *ngFor="let item of arr">
+    <div  style="border: 1px black solid">
+    <h1>Order:</h1>
+    <h1>{{item.date}}</h1>
+    <h3 *ngFor="let name of item.products; let i = index" [attr.data-index]="i">{{i+1}}){{ name.name  }}:{{item.products[i].price}}$</h3>
+    <!-- <p *ngFor="let price of item.products">{{price.price item.products }}</p> -->
+    </div>
+  
+</div>
+
+<!-- <p *ngFor="let item of arr">
+   
+    {{item.date}}
+  
+</p> -->
+<!-- 
+
+<table class="table table-hover table-dark">
+    <thead>
+      <tr >
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+        <th scope="col">Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of arr">
+        <th scope="row">1</th>
+        <td>{{item.date}}</td>
+        <td>Mark</td>
+        <td>Otto</td>
+        <td>@mdo</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>Jacob</td>
+        <td>Thornton</td>
+        <td>@fat</td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td colspan="2">Larry the Bird</td>
+        <td>@twitter</td>
+      </tr>
+    </tbody>
+  </table> -->

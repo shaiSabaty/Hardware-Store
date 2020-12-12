@@ -1,0 +1,30 @@
+ul{
+    display: flex;
+}
+
+#hover:hover a h2{
+
+    color:orange;
+}
+#hover{
+   color: black; 
+}
+
+#menuNav{
+    font-family: 'Piazzolla', serif;
+
+}
+#userNameHover:hover{
+    border: 1px solid white;
+}
+
+#hover2:hover{
+    color:orange;
+
+}
+#hover2{
+    color:black;
+}
+#hover2:hover{
+    color:orange;
+}

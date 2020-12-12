@@ -1,0 +1,299 @@
+<!-- 
+          <mat-error style="color: blueviolet">What to seach?</mat-error>
+          
+        </mat-form-field><br>
+      
+    
+    
+    
+    
+    
+     
+      <button mat-raised-button
+              color="primary"
+              type="submit" (click)="clickMe()" >Search</button>
+    
+            
+            
+    
+    </mat-card>
+    
+    
+
+
+   
+<div style="height: 600px" class="d-inline-flex p-2" *ngFor="let product of filteredArrayProduct">
+
+
+  <div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="{{product.imgPath}}" >
+
+    <img style="margin-top: 10px" width="80px" height="28px" src="{{product.imgPathCompanyLogo}}">
+
+
+
+    <div id="start"></div>
+
+
+
+    <div class="card-body">
+      <h5 class="card-title">{{product.name}}</h5>
+
+      <div style="display: inline;margin-left: 5px" *ngFor="let number of [0,1,2,3,4] "  >
+        <p style="display: inline" *ngIf="number<product.numOfStars">
+          <i style="color: #fbb535" class="fa fa-star" aria-hidden="true"></i></p>
+      </div >
+
+    
+      <p class="card-text">{{product.description}}</p>
+      <h5 class="card-title">{{product.price}}</h5>
+      <a style="margin-bottom: 10px" href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+
+  </div>
+</div>
+<app-selected-list></app-selected-list>
+
+
+
+
+<div class="accordion" id="accordionExample">
+  
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+         Category
+        </button>
+        <input type="checkbox" aria-label="Checkbox for following text input">
+
+        
+      </h2>
+    </div>
+
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+      <div class="card-body">
+        <div  *ngFor="let category of categories">
+
+          <p style="display: inline;">
+            <button   class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              {{category}}
+             </button>
+
+             
+
+          </p>
+          <input type="checkbox" >
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+   
+
+
+    
+
+
+
+    
+  </div>
+
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Manufacturer
+        </button>
+        <input type="checkbox" aria-label="Checkbox for following text input">
+
+      </h2>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+      <div class="card-body">
+        <div *ngFor="let manufacturer of manufacturers">
+
+          <p style="display: inline;">{{manufacturer}}</p>
+          <input type="checkbox">
+    
+        </div>      </div>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          All Products
+        </button>
+        <input type="checkbox" aria-label="Checkbox for following text input">
+
+      </h2>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+      <div class="card-body">
+        <div *ngFor="let productName of productNames">
+
+          <p style="display: inline;">{{productName}}</p>
+          <input type="checkbox">
+    
+        </div> 
+      </div>
+    </div>
+  </div>
+</div>
+
+<button type="button" class="btn btn-success">Filter</button>
+
+
+  -->
+
+
+  <mat-card>
+    <mat-form-field  ><br>
+        <input placeholder="What to Search?"  matInput type="text" [(ngModel)]="enteredValue" />
+          <!-- <button (click)="clickMe()" >Click</button> -->
+          <!-- <p *ngFor="let p of filteredArrayProduct ">{{p.name}}</p> -->
+        <mat-error style="color: blueviolet">
+          What to Search?
+        </mat-error>  
+    </mat-form-field><br>
+  
+        <button mat-raised-button
+                color="primary"
+                type="submit" (click)="clickMe(value)" >Search</button>
+  </mat-card>
+  
+      <div *ngIf="filteredArrayLength>1">
+        <h7>We find {{filteredArrayLength}} result </h7>
+        
+        <div class="accordion" id="accordionSort" *ngIf="filteredArrayLength>1">
+  
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h2 class="mb-0">
+                <button   mat-raised-button type="button" class="btn btn-link"
+                data-toggle="collapse" aria-expanded="true"
+                 data-target="#collapseOne"  aria-controls="collapseOne">
+                  Sort
+                </button>
+              </h2>
+            </div>
+          </div>
+          <div class="card">
+              <div class="card-body">
+                <button mat-raised-button  type="button" (click)="sortSearchResult('price')"  id="collapseOne"
+                          class="collapse"  aria-expanded="false"
+                         aria-labelledby="headingOne" data-parent="#accordionSort">
+                  By Price
+                </button>
+                <button mat-raised-button type="button" (click)="sortSearchResult('numOfStars')" id="collapseOne"
+                          class="collapse"  aria-expanded="false"
+                        aria-labelledby="headingOne" data-parent="#accordionSort">
+                 By Number Of Star
+                </button>
+                <button mat-raised-button type="button" (click)="sortSearchResult('name')"  id="collapseOne"
+                           class="collapse"  aria-expanded="false" 
+                        aria-labelledby="headingOne" data-parent="#accordionSort">
+                   By Product Name
+                </button>
+              </div>
+          </div>
+  
+        </div>
+      </div>
+  
+  
+  <div class="accordion" id="accordionfilter3" *ngIf="filteredArrayLength>1">
+   
+    <div class="card">
+      <div class="card-header" id="heading1">
+        <h2 class="mb-01">
+          <button   mat-raised-button type="button" class="btn btn-link"
+          data-toggle="collapse" aria-expanded="true"
+           data-target="#collapse2"  aria-controls="collapse2">
+            Filter
+          </button>
+        </h2>
+      </div>
+    </div>
+  
+    <div class="card" >
+      <div  class="card-body"> 
+        <button mat-raised-button id="collapse2"  class="btn btn-link collapse" type="button" 
+            data-toggle="collapse" aria-expanded="true"
+            data-target="#collapse3" aria-controls="collapse3">
+                  By Item Name
+        </button>
+        <button mat-raised-button id="collapse2"  class="btn btn-link collapse" type="button" 
+            data-toggle="collapse" aria-expanded="true"
+            data-target="#collapse4" aria-controls="collapse4">
+                By Item Company
+        </button>
+     </div>
+    </div>
+  
+  
+    <div class="card" >
+      <div class="card-body"> 
+        <div *ngFor="let productName of unique">
+          <p style="display: inline;">
+            <button   id="collapse4" class="collapse" type="button"  
+                  data-toggle="collapse"  aria-expanded="false"
+                    aria-labelledby="heading1" data-parent="#accordionfilter3">
+                              {{productName}}
+                  <input type="checkbox"  value={{productName._id}} (click)="filterItemByCompany(productName.company)"
+                          aria-label="Checkbox for following text input"> 
+            </button>
+            <button   id="collapse3" class="collapse" type="button" 
+                    data-toggle="collapse"  aria-expanded="false"
+                    aria-labelledby="heading1" data-parent="#accordionfilter3">
+                              {{productName}}
+                <input type="checkbox"  value={{productName._id}} (click)="filterItemByName(productName.name)"
+                  aria-label="Checkbox for following text input"> 
+                        
+            </button>
+          </p>
+        </div>
+        <div *ngIf="filteredNewArrayLength>0" >
+          <button   mat-raised-button type="button" class="btn btn-link" (click)="clickFilter()">
+             Tap To Result
+          </button>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  
+  
+  
+  <div style="height: 600px" class="d-inline-flex p-2" *ngFor="let gpu of filteredArrayProduct">
+    <div class="card" style="width: 18rem;">
+      <!-- <img src="{{gpu.imgPathCompanyLogo}}" > -->
+      <img class="card-img-top" src="{{gpu.imgPath}}" >
+      <img style="margin-top: 10px" width="80px" height="28px" src="{{gpu.imgPathCompanyLogo}}">
+      <div id="start">
+  
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">{{gpu.name}}</h5>
+        <div style="display: inline;margin-left: 5px" *ngFor="let number of [0,1,2,3,4] "  >
+          <p style="display: inline" *ngIf="number<gpu.numOfStars">
+            <i style="color: #fbb535" class="fa fa-star" aria-hidden="true"></i></p>
+        </div >
+        <p class="card-text">{{gpu.description}}</p>
+        <h5 class="card-title">{{gpu.price}}</h5>
+        <a style="margin-bottom: 10px" href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+  </div>
+  
+  <app-selected-list>
+   
+  </app-selected-list>
+  

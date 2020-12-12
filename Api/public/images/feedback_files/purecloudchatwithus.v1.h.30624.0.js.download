@@ -1,0 +1,2552 @@
+﻿usingNamespace("Biz.PureCloud")["ChatWithUs"] = {
+
+    chatElement: null,
+
+    init: function (data) {
+        var isNotExist = false;
+        if (!Biz.PureCloud.ChatWithUs.chatElement) {
+            Biz.PureCloud.ChatWithUs.chatElement = data.chatElement;
+            isNotExist = true;
+        }
+
+        if (isNotExist) {
+            Biz.PureCloud.ChatWithUs.registChatWindowClickEvent();
+        }
+        Biz.PureCloud.Utils.windowOpen = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN);
+        Biz.PureCloud.ChatWithUs.onRead();
+    },
+
+    onRead: function () {
+        var chatCompleted = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatCompleted && chatCompleted !== Biz.PureCloud.Utils.WebChatClose && chatCompleted !== Biz.PureCloud.Utils.WebChatConnecting) {
+            // check conversation state
+            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            if (conversationId) {
+                 // call service check conversation state
+                 var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+                 var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+                 var url = '/purecloudwebchat/getconversationstate';
+                 Biz.PureCloud.Utils.sendRequest(url, { ConversationId: conversationId, MemberId: memberId, Token: token }, 'Post', Biz.PureCloud.ChatWithUs.getConversationState, Biz.PureCloud.ChatWithUs.hideChatWindow);
+            }
+        } else {
+            Biz.PureCloud.ChatWithUs.setChatWindow();
+        }
+    },
+
+    handleReopenChat: function () {
+        Biz.PureCloud.ChatWithUs.chatElement.style.display = '';
+        // remove collapse/closed classes
+        Biz.PureCloud.Utils.removeClasses(Biz.PureCloud.ChatWithUs.chatElement, ['is-collapsed', 'is-closed']);
+
+        // toggle open
+        Biz.PureCloud.ChatWithUs.chatElement.setAttribute('open', 'true');
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, true);
+        Biz.PureCloud.Utils.windowOpen = true;
+        Biz.PureCloud.Chating.removeRedTip();
+
+        var chatCompleted = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatCompleted === Biz.PureCloud.Utils.WebChatClose) {
+            Biz.PureCloud.ChatLogin.clearInfo();
+        }
+        window.parent.postMessage({ key: 'show' }, "*");
+    },
+
+    setChatWindow: function (isChating) {
+        Biz.PureCloud.Utils.removeClasses(Biz.PureCloud.ChatWithUs.chatElement, ['is-collapsed', 'is-closed']);
+       
+        var windowState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN);
+        if (isChating) {
+            Biz.PureCloud.ChatWithUs.chatElement.setAttribute('open', 'true');
+            if (!windowState) {
+                Biz.PureCloud.Utils.addClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+            }
+            if (jQuery("#Startchat").length > 0) {
+                jQuery("#Startchat").show();
+            }
+            window.parent.postMessage({ key: windowState ? 'show' : 'collapsed' }, "*");
+        } else {
+            if (windowState === false) {
+                Biz.PureCloud.Utils.addClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+            } else if (windowState === '') {
+                Biz.PureCloud.Utils.addClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-closed');
+                Biz.PureCloud.ChatWithUs.chatElement.style.display = 'none';
+            }
+            if (Biz.PureCloud.Config.ShowChatWindow) {
+                Biz.PureCloud.ChatWithUs.chatElement.setAttribute('open', 'true');
+                Biz.PureCloud.ChatWithUs.chatElement.style.display = '';
+                if (jQuery("#Startchat").length > 0) {
+                    jQuery("#Startchat").hide();
+                }
+            }
+            window.parent.postMessage({ key: Biz.PureCloud.Config.ShowChatWindow ? windowState ? 'show' : 'collapsed' : 'hidden' }, "*");
+        }
+    },
+
+    hideChatWindow: function () {
+        
+        Biz.PureCloud.ChatWithUs.chatElement.removeAttribute('open');
+        
+        if (Biz.PureCloud.Config.ShowChatWindow) {
+            Biz.PureCloud.Utils.addClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-closed');
+        }
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, '');
+        Biz.PureCloud.Utils.windowOpen = false;
+        window.parent.postMessage({ key: Biz.PureCloud.Config.ShowChatWindow ? "collapsed" : "hidden" }, "*");
+        if (jQuery("#Startchat").length > 0 && !Biz.PureCloud.Config.ShowChatWindow) {
+            jQuery("#Startchat").show();
+        }
+    },
+
+    registChatWindowClickEvent: function () {
+        var collapseElment = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.NE-collapse-chat');
+        collapseElment && collapseElment.addEventListener('click', function () {
+            Biz.PureCloud.Utils.removeClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-closed');
+            var isCollapsed = Biz.PureCloud.Utils.hasClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+            if (isCollapsed) {
+                Biz.PureCloud.Utils.removeClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, true);
+                Biz.PureCloud.Utils.windowOpen = true;
+                Biz.PureCloud.Chating.removeRedTip();
+                var content = Biz.PureCloud.ChatWithUs.chatElement.querySelector("#chatContend");
+                var scrollHeight = content.scrollHeight;
+                jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+                jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+            } else {
+                Biz.PureCloud.Utils.addClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, false);
+                Biz.PureCloud.Utils.windowOpen = false;
+            }
+            window.parent.postMessage({ key: isCollapsed ? 'show' : 'collapsed' }, "*");
+        });
+        var closeElment = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.NE-close-chat');
+        closeElment && closeElment.addEventListener('click', function (e) {
+            var isCollapsed = Biz.PureCloud.Utils.hasClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+            var chatContentElement = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.NE-chat-content');
+            var inputBarElement = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.NE-chat-input-bar');
+            var exitElement = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.NE-chat-exit');
+            Biz.PureCloud.Utils.removeClasses(inputBarElement, ['disabled']);
+
+            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID) || Biz.PureCloud.Chating.chatData.conversationId;
+            if (conversationId && conversationId == Biz.PureCloud.Chating.conversationId) {
+                // if its collapsed, open it
+                if (isCollapsed) {
+                    Biz.PureCloud.Utils.removeClass(Biz.PureCloud.ChatWithUs.chatElement, 'is-collapsed');
+                    Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, true);
+                    Biz.PureCloud.Utils.windowOpen = true;
+                    Biz.PureCloud.Chating.removeRedTip();
+                    window.parent.postMessage({ key: 'show'}, "*");
+                }
+
+                // check if chat is over, will determine next steps
+                var chatCompleted = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+
+                if (chatCompleted === Biz.PureCloud.Utils.WebChatClose) {
+                    var hasSubmit = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK);
+                    if (hasSubmit) {
+                        Biz.PureCloud.ChatWithUs.hideChatWindow();
+                        Biz.PureCloud.ChatLogin.resetChatWindow();
+                    } else {
+                        var agentName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME) || Biz.PureCloud.Chating.chatData.agentName;
+                        if (agentName) {
+                            // remove class adjusting chat content height
+                            Biz.PureCloud.Utils.removeClass(chatContentElement, 'chat-complete');
+
+                            // show message
+                            Biz.PureCloud.Utils.addClass(exitElement, 'show-survey');
+
+                            // adjust input bar
+                            Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-message', 'show-none']);
+                            Biz.PureCloud.Utils.addClass(inputBarElement, 'show-submit');
+                            Biz.PureCloud.Feedback.init({
+                                chatElement: Biz.PureCloud.ChatWithUs.chatElement,
+                                chatData: Biz.PureCloud.Chating.chatData
+                            });
+                            Biz.PureCloud.Chating.chatData = {};
+                        } else {
+                            Biz.PureCloud.ChatWithUs.hideChatWindow();
+                            Biz.PureCloud.ChatLogin.resetChatWindow();
+                        }
+                    }
+                }
+                else {
+                    // show confirm
+                    if (chatCompleted === Biz.PureCloud.Utils.WebChatWaitChating) {
+                        Biz.PureCloud.Utils.addClass(inputBarElement, 'disabled');
+                    }
+                    Biz.PureCloud.Utils.addClass(exitElement, 'show-confirm');
+                    Biz.PureCloud.Confirm.init({ chatElement: Biz.PureCloud.ChatWithUs.chatElement });
+                }
+
+                // show exit overlay
+                Biz.PureCloud.Utils.addClass(exitElement, 'is-visible');
+            } else {
+                Biz.PureCloud.ChatWithUs.hideChatWindow();
+                Biz.PureCloud.ChatLogin.resetChatWindow();
+            }
+        });
+        var repoenChatBTNs = Biz.PureCloud.ChatWithUs.chatElement.querySelectorAll('.NE-reopen-chat');
+        for (var w = 0; w < repoenChatBTNs.length; w++) {
+            repoenChatBTNs[w].addEventListener('click', Biz.PureCloud.ChatWithUs.handleReopenChat);
+        }
+        var dialogButton = Biz.PureCloud.ChatWithUs.chatElement.querySelector(".NE-chat-dialog-button");
+        dialogButton && dialogButton.addEventListener('click', function () {
+            var errorTips = Biz.PureCloud.ChatWithUs.chatElement.querySelector(".NE-chat-dialog-backdrop");
+            if (errorTips) {
+                errorTips.style.display = 'none';
+            }
+        });
+    },
+
+    getConversationState: function (data) {
+        // check window state
+        Biz.PureCloud.ChatWithUs.setChatWindow(data);
+        if (data) {
+            Biz.PureCloud.ChatWithUs.chatElement.setAttribute('open', 'open');
+            if (jQuery("#Startchat").length > 0) {
+                jQuery("#Startchat").hide();
+            }
+            Biz.PureCloud.Chating.reConnected({ chatElement: Biz.PureCloud.ChatWithUs.chatElement });
+        } else {
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatClose);
+            Biz.PureCloud.ChatLogin.clearInfo();
+        }
+    },
+
+    handleChatFromNeweggSite: function (data) {
+        Biz.PureCloud.ChatWithUs.handleReopenChat();
+        var chatCompleted = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatCompleted && chatCompleted !== Biz.PureCloud.Utils.WebChatClose && chatCompleted !== Biz.PureCloud.Utils.WebChatConnecting) {
+            return;
+        }
+        var fullName = Biz.PureCloud.Config.Customer.IsLogin ? Biz.PureCloud.Config.Customer.FirstName + ' ' + Biz.PureCloud.Config.Customer.LastName : '';
+        var email = Biz.PureCloud.Config.Customer.IsLogin ? Biz.PureCloud.Config.Customer.LoginName : '';
+        var subject = '';
+        var isChecked = Biz.PureCloud.Config.EnableTranscript;
+        var topic = '';
+        var reason = '';
+        var customerNumber = Biz.PureCloud.Config.Customer.IsLogin ? Biz.PureCloud.Config.Customer.CustomerNumber : 0;
+        if (data) {
+            if (data.loginName) { fullName = decodeURIComponent(data.loginName); }
+            if (data.email) { email = decodeURIComponent(data.email); }
+            if (data.ordernumber) { subject = 'OrderNumber:' + data.ordernumber; }
+            if (data.topic) { topic = decodeURIComponent(data.topic); }
+            if (data.reason) { reason = decodeURIComponent(data.reason); }
+            if (data.checkEmail) { isChecked = data.checkEmail == true ; }
+        }
+        
+        fullName = Biz.PureCloud.Utils.trimStr(fullName);
+        email = Biz.PureCloud.Utils.trimStr(email);
+        topic = Biz.PureCloud.Utils.trimStr(topic);
+        subject = Biz.PureCloud.Utils.trimStr(subject);
+        reason = Biz.PureCloud.Utils.trimStr(reason);
+        var dateTime = new Date();
+        if (fullName && email && topic) {
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME, fullName);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_EMAIL, email);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO, JSON.stringify({ msg: subject, order: '', topic: topic, reason: reason, question: subject, dateTime: dateTime }));
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, true);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL, isChecked);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMERNUMBER, customerNumber);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatConnecting);
+            Biz.PureCloud.Chating.init({ chatElement: Biz.PureCloud.ChatWithUs.chatElement });
+            Biz.PureCloud.Utils.windowOpen = true;
+            Biz.PureCloud.Chating.removeRedTip();
+        } 
+        
+    }
+};
+
+usingNamespace("Biz.PureCloud")["ChatLogin"] = {
+    chatElement: null,
+
+    init: function (data) {
+        if (!Biz.PureCloud.ChatLogin.chatElement) {
+            Biz.PureCloud.ChatLogin.chatElement = data.chatElement;
+            Biz.PureCloud.ChatLogin.registChatLoginClickEvent();
+        }
+        Biz.PureCloud.ChatLogin.clearInfo();
+    },
+
+    clearInfo: function () {
+        // clear localstorage
+        var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatState && (chatState == Biz.PureCloud.Utils.WebChatConnecting || chatState == Biz.PureCloud.Utils.WebChatClose)) {
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_QUEUE_ID);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CUSTOMERNUMBER);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_SOURE);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_WEBSOCKETURL);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_AGENT_ID);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_EMAIL);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_MSG_LIST);
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE);
+
+            Biz.PureCloud.Utils.removeClass(Biz.PureCloud.ChatLogin.chatElement, 'is-agent-offline');
+            var chatHeaderElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-header');
+            if (chatHeaderElement) {
+                chatHeaderElement && Biz.PureCloud.Utils.addClass(chatHeaderElement, 'no-name');
+                var agentImageElement = chatHeaderElement.querySelector('.agent-icon');
+                if (agentImageElement) {
+                    agentImageElement.style.backgroundImage = '';
+                }
+                var nameElement = chatHeaderElement.querySelector('.NE-chat-agent-name').lastElementChild;
+                if (nameElement) {
+                    nameElement.innerHTML = '';
+                }
+            } 
+            Biz.PureCloud.ChatLogin.clearUserInput();
+        }
+    },
+
+    registChatLoginClickEvent: function () {
+        var loginElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-content .login-section');
+        // topic 
+        var topicSelect = loginElement.querySelector('.topic-select');
+        topicSelect.addEventListener('change', Biz.PureCloud.ChatLogin.handleTopicChange);
+
+        // reason
+        var reasonSelects = loginElement.querySelectorAll('.reason-select');
+        for (var z = 0; z < reasonSelects.length; z++) {
+            reasonSelects[z].addEventListener('change', Biz.PureCloud.ChatLogin.handleReasonChange);
+        }
+
+        // textarea
+        var textAreas = loginElement.querySelectorAll('textarea.expandable');
+        for (var n = 0; n < textAreas.length; n++) {
+            textAreas[n].addEventListener('input', function (event) {
+                if (event.target.tagName.toLowerCase() !== 'textarea') return;
+                Biz.PureCloud.ChatLogin.autoExpand(event.target);
+            });
+            textAreas[n].addEventListener('input', Biz.PureCloud.ChatLogin.calculateLength);
+        }
+
+        // continue button
+        var contiuneBar = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-input-bar');
+        var continueBTN = contiuneBar.querySelector('.continue-bar .continue-btn');
+        continueBTN.addEventListener('click', Biz.PureCloud.ChatLogin.handleContinueClick);
+    },
+
+    handleTopicChange: function (event) {
+        // IE has a different way of keeping track of selected
+        var selectHtml = event.target.selectedOptions ?
+            event.target.selectedOptions[0].innerHTML :
+            event.target[event.target.selectedIndex].innerHTML;
+
+        // write value to element
+        event.target.nextElementSibling.innerHTML = selectHtml;
+
+        var value = event.target.value;
+        var activeReasonSelect = Biz.PureCloud.ChatLogin.chatElement.querySelector('.reason-select.is-active');
+        var thisReasonSelect = Biz.PureCloud.ChatLogin.chatElement.querySelector('.reason-select.group-' + value);
+
+        // depending on value
+        activeReasonSelect && Biz.PureCloud.Utils.removeClass(activeReasonSelect, 'is-active');
+        if (value !== '0') {
+            thisReasonSelect && jQuery(thisReasonSelect.querySelector('select')).val('0');
+            thisReasonSelect && jQuery(thisReasonSelect.querySelector('select')).trigger(jQuery.Event("change"));
+            Biz.PureCloud.Utils.addClass(thisReasonSelect, 'is-active');
+        } 
+        // hidden question
+        var questionInput = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.question-input');
+        Biz.PureCloud.Utils.addClass(questionInput, 'is-hidden');
+    },
+
+    handleReasonChange: function (event) {
+        // IE has a different way of keeping track of selected
+        var selectHtml = event.target.selectedOptions ?
+            event.target.selectedOptions[0].innerHTML :
+            event.target[event.target.selectedIndex].innerHTML;
+
+        // write value to element
+        event.target.nextElementSibling.innerHTML = selectHtml;
+
+        var questionInput = Biz.PureCloud.ChatWithUs.chatElement.querySelector('.question-input');
+        var value = event.target.value;
+
+        // depending on value
+        if (value !== '0') {
+            // show reason
+            Biz.PureCloud.Utils.removeClass(questionInput, 'is-hidden');
+        } else {
+            // hide reason
+            Biz.PureCloud.Utils.addClass(questionInput, 'is-hidden');
+        }
+    },
+
+    calculateLength: function (e) {
+        var counter = e.target.nextElementSibling.querySelector('span');
+        var value = e.target.textLength ? e.target.textLength : e.target.innerHTML.length;
+        counter.innerHTML = value;
+    },
+
+    autoExpand: function (elem) {
+        // reset field height
+        elem.style.height = 'inherit';
+
+        // get the computed styles for the element
+        var computed = window.getComputedStyle(elem);
+
+        // calculate the height
+        var height = elem.scrollHeight
+            //+ parseInt(computed.getPropertyValue('padding-top'), 10)
+            + parseInt(computed.getPropertyValue('padding-bottom'), 10)
+            - parseInt(computed.getPropertyValue('border-top-width'), 10)
+            - parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+
+        // cap height
+        if (height > 74) {
+            height = 74;
+        } else {
+            height = 57;
+        }
+
+        // set the height
+        elem.style.height = height + 'px';
+    },
+
+    handleContinueClick: function () {
+        var hasUserInfo = Biz.PureCloud.ChatLogin.validateUserInfo();
+
+        if (hasUserInfo) {
+            var chatCompleted = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+            if (chatCompleted && chatCompleted !== Biz.PureCloud.Utils.WebChatClose && chatCompleted !== Biz.PureCloud.Utils.WebChatConnecting) {
+                Biz.PureCloud.Chating.reConnected({ chatElement: Biz.PureCloud.ChatLogin.chatElement });
+            } else {
+                var topic = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('.topic-select').querySelector('span').innerHTML);
+                var reason = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('.reason-select.is-active').querySelector('span').innerHTML);
+                Biz.PureCloud.Utils.sendToAdobeOnClick(topic, reason);
+                Biz.PureCloud.ChatLogin.saveChatLoginInfo();
+                Biz.PureCloud.Chating.init({ chatElement: Biz.PureCloud.ChatLogin.chatElement });
+            }
+          
+        }
+    },
+
+    validateUserInfo: function () {
+        var isValid = false;
+        var userInputs = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.login-section input[ type="text" ]');
+        var reasonSelect = Biz.PureCloud.ChatLogin.chatElement.querySelector('.login-section .reason-select.is-active.form-select select');
+        var reasonValid = reasonSelect && reasonSelect.value > 0;
+        var topicSelect = Biz.PureCloud.ChatLogin.chatElement.querySelector('.login-section .topic-select.form-select select');
+        var topicValid = topicSelect.value > 0;
+        var questionTextarea = Biz.PureCloud.ChatLogin.chatElement.querySelector('.login-section textarea');
+        results = [];
+        // check the two user input fields
+        for (var i = 0; i < userInputs.length; i++) {
+            var thisValue = Biz.PureCloud.Utils.trimStr(userInputs[i].value);
+            isValid = thisValue.length > 0;
+
+            var name = userInputs[i].name;
+            if (isValid && name == 'email') {
+                var regex = new RegExp(Biz.PureCloud.Config.EmailAddressRegex);
+                if (!regex.test(thisValue)) {
+                    isValid = false;
+                }
+            }
+            var errorMessageElement = jQuery(userInputs[i]).closest('.row')[0].querySelector('.form-error-message');
+            if (!isValid) {
+                Biz.PureCloud.Utils.addClass(jQuery(userInputs[i]).closest('.row')[0], 'is-error');
+                var html = '';
+                if (name == 'name') {
+                    if (!errorMessageElement) {
+                        html = '<span class="form-error-message">This field is required.</span>';
+                        jQuery(userInputs[i]).closest('.row')[0].insertAdjacentHTML("beforeend", html);
+                    }
+                }
+                if (name == 'email') {
+                    if (!errorMessageElement) {
+                        if (thisValue && thisValue.length > 0) {
+                            html = '<span class="form-error-message">Please enter a valid email address.</span>';
+                        } else {
+                            html = '<span class="form-error-message">This field is required.</span>';
+                        }
+                        jQuery(userInputs[i]).closest('.row')[0].insertAdjacentHTML("beforeend", html);
+                    } else {
+                        if (thisValue && thisValue.length > 0) {
+                            errorMessageElement.innerHTML = 'Please enter a valid email address.';
+                        } else {
+                            errorMessageElement.innerHTML = 'This field is required.';
+                        }
+                    }
+                }
+            } else {
+                Biz.PureCloud.Utils.removeClass(jQuery(userInputs[i]).closest('.row')[0], 'is-error');
+                if (errorMessageElement) {
+                    jQuery(errorMessageElement).remove();
+                }
+            }
+
+            // return the bool value to results
+            results.push(isValid);
+        }
+
+        // check topic select
+        if (topicValid) {
+            Biz.PureCloud.Utils.removeClass(jQuery(topicSelect).closest('.row')[0], 'is-error');
+        } else {
+            Biz.PureCloud.Utils.addClass(jQuery(topicSelect).closest('.row')[0], 'is-error');
+        }
+
+        results.push(topicValid);
+
+        // check reason select
+        if (reasonSelect && reasonValid) {
+            Biz.PureCloud.Utils.removeClass(jQuery(reasonSelect).closest('.row')[0], 'is-error');
+        } else {
+            reasonSelect && Biz.PureCloud.Utils.addClass(jQuery(reasonSelect).closest('.row')[0], 'is-error');
+        }
+
+        results.push(reasonValid);
+
+        // check textarea for something
+        var questionErrorMessage = jQuery(questionTextarea).closest('.row')[0].querySelector('.form-error-message');
+        var questionValue = Biz.PureCloud.Utils.trimStr(questionTextarea.value);
+        if (questionValue.length > 0) {
+            // has value, is good
+            Biz.PureCloud.Utils.removeClass(jQuery(questionTextarea).closest('.row')[0], 'is-error');
+            if (questionErrorMessage) {
+                jQuery(questionErrorMessage).remove();
+            }
+            results.push(true);
+        } else {
+            // no value, no good
+            Biz.PureCloud.Utils.addClass(jQuery(questionTextarea).closest('.row')[0], 'is-error');
+            if (!questionErrorMessage) {
+                var noteElement = jQuery(questionTextarea).closest('.row')[0].querySelector('p');
+                var errorNode = document.createElement('span');
+                errorNode.setAttribute('class', 'form-error-message');
+                errorNode.innerHTML = 'This field is required.';
+                jQuery(questionTextarea).closest('.row')[0].insertBefore(errorNode, noteElement);
+            }
+            results.push(false);
+        }
+
+        // prep final check
+        isValid = results.indexOf(false) < 0;
+
+        // return check
+        return isValid;
+    },
+
+    resetChatWindow: function () {
+
+        var chatContentElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-content');
+        Biz.PureCloud.Utils.removeClass(chatContentElement, 'show-chat');
+        Biz.PureCloud.Utils.addClass(chatContentElement, 'show-login');
+
+        var inputBarElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-message', 'disabled']);
+        Biz.PureCloud.Utils.addClass(inputBarElement, 'show-continue');
+
+        Biz.PureCloud.ChatLogin.clearUserInput();
+        // hidden reason
+        var reasonElement = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll(".reason-select");
+        for (var i = 0; i < reasonElement.length; i++) {
+            Biz.PureCloud.Utils.removeClass(reasonElement[i], 'is-active');
+        }
+
+        // hidden question
+        var questionElement = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.question-input');
+        for (var j = 0; j < questionElement.length; j++) {
+            Biz.PureCloud.Utils.addClass(questionElement[j], 'is-hidden');
+        }
+
+        // clean error
+        var errorElement = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.is-error');
+        for (var k = 0; k < errorElement.length; k++) {
+            Biz.PureCloud.Utils.removeClass(errorElement[k], 'is-error');
+        }
+        var errorMessageElement = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.form-error-message');
+        for (var n = 0; n < errorMessageElement.length; n++) {
+            jQuery(errorMessageElement).remove();
+        }
+
+        // remove disable
+        var disabledElememt = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.disabled');
+        for (var m = 0; m < disabledElememt.length; m++) {
+            Biz.PureCloud.Utils.removeClass(disabledElememt[m], 'disabled');
+        }
+
+        var chatHeaderElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-header');
+        chatHeaderElement && Biz.PureCloud.Utils.addClass(chatHeaderElement, 'no-name');
+
+        chatContentElement && Biz.PureCloud.Utils.removeClasses(chatContentElement, ['show-issue', 'show-chat']);
+        chatContentElement && Biz.PureCloud.Utils.addClass(chatContentElement, 'show-login');
+
+        inputBarElement && Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-message', 'show-submit', 'show-close', 'show-none']);
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['single-line', 'double-line', 'triple-line']);
+        inputBarElement && Biz.PureCloud.Utils.addClass(inputBarElement, 'show-continue');
+
+        var exitElement = Biz.PureCloud.ChatLogin.chatElement.querySelector('.NE-chat-exit');
+        exitElement && Biz.PureCloud.Utils.removeClasses(exitElement, ['is-visible', 'show-message', 'show-survey']);
+    },
+
+    clearUserInput: function () {
+
+        var allSelects = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('select');
+        var allTextAreas = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('textarea');
+        var allRatings = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('.rating-eggs');
+
+        // clear all text inputs
+        if (Biz.PureCloud.Config.Customer.IsLogin) {
+            var fullNameInput = Biz.PureCloud.ChatLogin.chatElement.querySelector('#fullname');
+            fullNameInput.value = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.Config.Customer.FirstName + ' ' + Biz.PureCloud.Config.Customer.LastName);
+            var emailInput = Biz.PureCloud.ChatLogin.chatElement.querySelector('#emailaddress');
+            emailInput.value = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.Config.Customer.LoginName);
+        } else {
+            var allInputs = Biz.PureCloud.ChatLogin.chatElement.querySelectorAll('input[type="text"]');
+            for (var x = 0; x < allInputs.length; x++) {
+                allInputs[x].value = '';
+                var input = jQuery(allInputs[x]).closest('.row')[0];
+                input && Biz.PureCloud.Utils.removeClass(input, 'is-error');
+            }
+        }
+
+        // clear send me a chat transcript
+        var sendMetranscript = Biz.PureCloud.ChatLogin.chatElement.querySelector('#SendScript');
+        if (sendMetranscript) {
+            sendMetranscript.checked = Biz.PureCloud.Config.EnableTranscript;
+        }
+
+        // clear all textareas
+        for (var y = 0; y < allTextAreas.length; y++) {
+            allTextAreas[y].value = '';
+            var event;
+            if (typeof (Event) === 'function') {
+                event = new Event('input');
+            } else {
+                event = document.createEvent('Event');
+                event.initEvent('input', true, true);
+            }
+            allTextAreas[y].dispatchEvent(event);
+            var elem = jQuery(allTextAreas[y]).closest('.row')[0];
+            if (elem) {
+                Biz.PureCloud.Utils.removeClass(elem, 'is-error');
+            }
+        }
+
+        // reset all selects
+        for (var z = 0; z < allSelects.length; z++) {
+            jQuery(allSelects[z]).val('0');
+            jQuery(allSelects[z]).trigger(jQuery.Event("change"));
+            Biz.PureCloud.Utils.removeClass(jQuery(allSelects[z]).closest('.row')[0], 'is-error');
+        }
+
+        // reset all ratings
+        for (var a = 0; a < allRatings.length; a++) {
+            Biz.PureCloud.Utils.removeClasses(allRatings[a], ['rating-1', 'rating-2', 'rating-3', 'rating-4', 'rating-5']);
+        }
+    },
+
+    saveChatLoginInfo: function () {
+        var fullName = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('#fullname').value);
+        var email = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('#emailaddress').value);
+        var topic = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('.topic-select').querySelector('span').innerHTML);
+        var reason = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('.reason-select.is-active').querySelector('span').innerHTML);
+        var question = Biz.PureCloud.Utils.trimStr(Biz.PureCloud.ChatLogin.chatElement.querySelector('.login-section textarea').value);
+        var subject = "Topic:" + topic + " ;Reason:" + reason + " ;Question:" + question;
+        var sendMetranscript = Biz.PureCloud.ChatLogin.chatElement.querySelector("#SendScript");
+        var isChecked = sendMetranscript.checked;
+        var dateTime = new Date();
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME, fullName);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_EMAIL, email);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO, JSON.stringify({ msg: subject, order: '', topic: topic, reason: reason, question: question, dateTime: dateTime }));
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_WINDOW_IS_OPEN, true);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL, isChecked);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMERNUMBER, Biz.PureCloud.Config.Customer.CustomerNumber);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatConnecting);
+        Biz.PureCloud.Utils.windowOpen = true;
+        Biz.PureCloud.Chating.removeRedTip();
+    }
+};
+
+usingNamespace("Biz.PureCloud")["Chating"] = {
+    chatElement: null,
+
+    messageTextScrollSteps: [],
+    messageTextLengthSteps: [],
+    previousMessageTextClass: '',
+    lastinputTime: 0,
+    isShowAgentTyping: false,
+    socket: null,
+    currentAgentName: '',
+    isSendBythisWindow: false,
+    socketTimeOutId: 0,
+    lockReconnect: false,
+    chatData: {},
+    tyingTimeOutId: 0,
+    conversationId:'',
+
+    keepAlive: function () {
+        var timeout = 3000;
+        if (Biz.PureCloud.Chating.socket.readyState == WebSocket.OPEN) {
+            Biz.PureCloud.Chating.socket.send('');
+        }
+        Biz.PureCloud.Chating.socketTimeOutId = setTimeout(Biz.PureCloud.Chating.keepAlive, timeout);
+    },
+
+    cancelKeepAlive: function () {
+        if (Biz.PureCloud.Chating.socketTimeOutId) {
+            clearTimeout(Biz.PureCloud.Chating.socketTimeOutId);
+        }
+    },
+
+    createWebSocket: function (url) {
+        try {
+            Biz.PureCloud.Chating.socket = new WebSocket(url);
+            Biz.PureCloud.Chating.socket.addEventListener('open', function (event) {
+                Biz.PureCloud.Chating.chatElement.querySelector('.NE-close-chat').style.display = '';
+                Biz.PureCloud.Chating.keepAlive();
+                var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+                if (chatState == Biz.PureCloud.Utils.WebChatClose) {
+                    return;
+                }
+
+                var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+                var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+                var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+                var url = '/purecloudwebchat/getconversationstate';
+                Biz.PureCloud.Utils.sendRequest(url, { ConversationId: conversationId, MemberId: memberId, Token: token }, 'Post', function (isChating) {
+                    if (!isChating) {
+                        Biz.PureCloud.Chating.showChatEnd();
+                        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK, false);
+                    }
+                });
+            });
+            Biz.PureCloud.Chating.socket.addEventListener('message', Biz.PureCloud.Chating.getGuestWebChatMessage);
+            Biz.PureCloud.Chating.socket.addEventListener('error', Biz.PureCloud.Chating.reConnectedWebSocket);
+            Biz.PureCloud.Chating.socket.addEventListener('close', function (event) {
+                Biz.PureCloud.Chating.cancelKeepAlive();
+                Biz.PureCloud.Chating.reConnectedWebSocket();
+            });
+        } catch (e) {
+            Biz.PureCloud.Chating.reConnectedWebSocket();
+        }
+       
+    },
+
+    reConnectedWebSocket: function () {
+        var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatState == Biz.PureCloud.Utils.WebChatClose) {
+            return;
+        }
+        if (Biz.PureCloud.Chating.lockReconnect) return;
+        Biz.PureCloud.Chating.lockReconnect = true;
+        setTimeout(function () {
+            var socketUrl = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_WEBSOCKETURL);
+            Biz.PureCloud.Chating.createWebSocket(socketUrl);
+            Biz.PureCloud.Chating.lockReconnect = false;
+        }, 2000);
+    },
+
+    baseInit: function (data) {
+        var exist = true;
+        if (!Biz.PureCloud.Chating.chatElement) {
+            Biz.PureCloud.Chating.chatElement = data.chatElement;
+            exist = false;
+        }
+        Biz.PureCloud.Chating.chatData = {};
+        Biz.PureCloud.Chating.chatElement = data.chatElement;
+        Biz.PureCloud.Chating.messageTextScrollSteps = [];
+        Biz.PureCloud.Chating.messageTextLengthSteps = [];
+        Biz.PureCloud.Chating.previousMessageTextClass = '';
+       
+        Biz.PureCloud.Chating.chatElement.querySelector('.NE-close-chat').style.display = 'none';
+        Biz.PureCloud.Utils.addClass(Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar'), 'disabled');
+        Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage').setAttribute('disabled', 'disabled');
+        Biz.PureCloud.Chating.chatElement.querySelector('#sendMsgBtn').setAttribute('disabled', 'disabled');
+        var chatContentElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-content');
+        Biz.PureCloud.Utils.removeClass(chatContentElement, 'show-login');
+        Biz.PureCloud.Utils.addClass(chatContentElement, 'show-chat');
+        Biz.PureCloud.Utils.removeClass(Biz.PureCloud.Chating.chatElement, 'is-agent-offline');
+        var inputBarElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClass(inputBarElement, 'show-continue');
+        Biz.PureCloud.Utils.addClass(inputBarElement, 'show-message');
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['single-line', 'double-line', 'triple-line']);
+        if (!exist) {
+            Biz.PureCloud.Chating.registChatClickEvent();
+        }
+    },
+
+    registChatClickEvent: function () {
+        var messageElement = Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage');
+        messageElement && messageElement.addEventListener('input', Biz.PureCloud.Chating.handleMessageTextUpdate);
+        messageElement && messageElement.addEventListener('keydown', Biz.PureCloud.Chating.messageInputKeyUp);
+        Biz.PureCloud.Chating.chatElement.querySelector('#sendMsgBtn').addEventListener('click', Biz.PureCloud.Chating.sendCustomerMsg);
+    },
+
+    init: function (data) {
+        Biz.PureCloud.Chating.baseInit(data);
+        Biz.PureCloud.Chating.initConnect();
+    },
+
+    reConnected: function (data) {
+        Biz.PureCloud.Chating.baseInit(data);
+        // reconnect to the websocket
+        var chatbasicInfo = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO) || '{}';
+        var chatObj = JSON.parse(chatbasicInfo);
+        var question = chatObj.question;
+        var questionTranslate = chatObj.questionTranslate;
+        var chatData = {
+            ConversationID: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID),
+            Token: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN),
+            MemberId: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID),
+            WebSocketUrl: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_WEBSOCKETURL),
+            Question: question,
+            SourceLanguage: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE),
+            ChatSource: Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SOURE),
+            QuestionTranslate: questionTranslate
+        };
+        Biz.PureCloud.Chating.initSuccess(chatData);
+
+        // get conversation messages
+        var messagesUrl = '/purecloudwebchat/getconversationmembers';
+        var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+        Biz.PureCloud.Utils.sendRequest(messagesUrl, { ConversatinId: chatData.ConversationID, Token: token }, 'Post', Biz.PureCloud.Chating.getConversationMemebers);
+    },
+
+    initConnect: function () {
+        Biz.PureCloud.Chating.showNotice(Biz.PureCloud.Config.Notice.Connecting, true);
+        Biz.PureCloud.Chating.chatElement.querySelector('.NE-close-chat').style.display = 'none';
+        var chatbasicInfoUrl = '/purecloudwebchat/getchatbasicinfo?channel=' + Biz.PureCloud.Config.Source;
+        var msgStr = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO);
+        var msg = JSON.parse(msgStr);
+        var fullName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+        var email = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_EMAIL, email);
+        var isChecked = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL);
+        var customerNumber = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMERNUMBER);
+        var requestBody = {
+            FullName: fullName,
+            EmailAddress: email,
+            EnableSendMeTranscript: isChecked,
+            Topic: msg.topic,
+            Reason: msg.reason,
+            Question: msg.question,
+            CustomerNumber: customerNumber
+        };
+        Biz.PureCloud.Utils.sendRequest(chatbasicInfoUrl, requestBody, "Post", Biz.PureCloud.Chating.initSuccess, Biz.PureCloud.Chating.initFailed);
+    },
+
+    initSuccess: function (data) {
+        if (data && data.ConversationID) {
+            Biz.PureCloud.Chating.conversationId = data.ConversationID;
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatWaitChating);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID, data.ConversationID);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN, data.Token);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_SOURE, data.ChatSource);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID, data.MemberId);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_WEBSOCKETURL, data.WebSocketUrl);
+            var questionTranslate = Biz.PureCloud.Utils.trimStr(data.QuestionTranslate);
+            var chatbasicInfo = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO) || '{}';
+            var chatObj = JSON.parse(chatbasicInfo);
+            chatObj.questionTranslate = questionTranslate;
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_BASIC_INFO, JSON.stringify(chatObj));
+            var showTranslate = questionTranslate && questionTranslate.length > 0 && data.SourceLanguage != 'en';
+            Biz.PureCloud.Chating.showCustomerMsg(data.Question, true, new Date(chatObj.dateTime), showTranslate, data.QuestionTranslate, (new Date()).getTime());
+            Biz.PureCloud.Chating.showNotice(data.PositionMessage, !data.Question);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE, data.SourceLanguage);
+            Biz.PureCloud.Chating.createWebSocket(data.WebSocketUrl);
+        }
+        else {
+            Biz.PureCloud.Chating.initFailed({});
+        }
+    },
+
+    initFailed: function (err) {
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatClose);
+        Biz.PureCloud.ChatLogin.clearInfo();
+        var msg = Biz.PureCloud.Config.Notice.ConnectFailed;
+        Biz.PureCloud.Chating.showNotice(msg, true);
+        Biz.PureCloud.Chating.chatElement.querySelector('.NE-close-chat').style.display = '';
+    },
+
+    getConversationMemebers: function (chatData) {
+        if (chatData.length == 0) {
+            return;
+        }
+
+        var data = {};
+        for (var index = 0; index < chatData.length; index++) {
+            var member = chatData[index];
+            if (member.Role == 'AGENT' && member.State == 'CONNECTED') {
+                data = member;
+                break;
+            }
+        }
+        if (data && data.MemberName) {
+            Biz.PureCloud.Chating.showAgentJoinMsg(data, false);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatChating);
+        }
+        else {
+            Biz.PureCloud.Chating.showNotice(Biz.PureCloud.Config.Notice.PositionEqualZero);
+            return;
+        }
+        
+        var msgList = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_MSG_LIST) || [];
+        var maxchatTime = 0;
+        var maxMsgID = '';
+        if (msgList.length > 0) {
+            for (var i = 0; i < msgList.length; i++) {
+                var msg = msgList[i];
+                var currentDate = new Date(msg.sendTime).getTime();
+                if (msgList.Role == "AGENT" && maxchatTime < currentDate) {
+                    maxchatTime = currentDate;
+                    maxMsgID = msg.MessageId;
+                }
+            }
+        }
+
+        // get conversation messages
+        var messagesUrl = '/purecloudwebchat/getconversationmessages';
+        var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+        var conversationID = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+        Biz.PureCloud.Utils.sendRequest(messagesUrl, { ConversatinId: conversationID, MsgID: maxMsgID, Token: token }, 'Post', Biz.PureCloud.Chating.showHistoryMessage);
+    },
+
+    getGuestWebChatMessage: function (event) {
+        var message = JSON.parse(event.data);
+        if (message.metadata) {
+            switch (message.metadata.type.toLocaleLowerCase()) {
+                case 'message':
+                    Biz.PureCloud.Chating.getMessageFromWebSocket(message);
+                    break;
+                case 'member-change':
+                    Biz.PureCloud.Chating.getMemberChageFromWebSocket(message);
+                    break;
+                case 'typing-indicator':
+                    Biz.PureCloud.Chating.getMemberTypeFromWebSocket(message);
+                    break;
+                default:
+                    Biz.PureCloud.Chating.getDefaultMessageFromWebSoket(message);
+                    break;
+            }
+        }
+    },
+
+    getMessageFromWebSocket: function (message) {
+        if (message) {
+            // ignore member-join or member-leave
+            if (message.eventBody && message.eventBody.bodyType.toLocaleLowerCase() == 'standard') {
+                var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+                if (memberId != message.eventBody.sender.id) {
+                    var agentMessage = message.eventBody.body;
+                    var language = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE);
+                    var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+                    var agentName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME);
+                    var url = '/purecloudwebchat/getagentmessage';
+                    var requestBody = {
+                        AgentMessage: agentMessage,
+                        TargetLanguage: language,
+                        AgentId: message.eventBody.sender.id,
+                        ConversationID: conversationId,
+                        MsgID: message.eventBody.id,
+                        AgentName: agentName,
+                        SendTime: new Date(message.eventBody.timestamp).getTime()
+                    };
+                    Biz.PureCloud.Utils.sendRequest(url, requestBody, "Post", Biz.PureCloud.Chating.showAgentMsg);
+                }
+                else { // customer msg
+                    setTimeout(function () {
+                        var msgElement = jQuery('#msg_' + message.eventBody.id);
+                        var timestamp = new Date(message.eventBody.timestamp);
+                        var customerMsg = message.eventBody.body;
+                        var oriMsg = customerMsg;
+                        var translatedFont = '(Translated:';
+                        var postion = customerMsg.indexOf(translatedFont);
+                        var translatedMsg = '';
+                        var showTranslate = false;
+                        if (postion > -1) {
+                            oriMsg = customerMsg.substring(0, postion);
+                            translatedMsg = customerMsg.substring(postion + translatedFont.length, customerMsg.length - 1);
+                            showTranslate = translatedMsg.length > 0;
+                        }
+                        if (msgElement.length > 0) {
+                            //jQuery(msgElement).remove();
+                            return;
+                        }
+                        Biz.PureCloud.Chating.showCustomerMsg(oriMsg, false, timestamp, showTranslate, translatedMsg, message.eventBody.id);
+                    }, 500);
+                }
+            }
+        }
+    },
+
+    getMemberChageFromWebSocket: function (message) {
+        if (message && message.eventBody && message.eventBody.member && message.eventBody.member.id) {
+            // connected
+            var memberId = message.eventBody.member.id;
+            var customermemberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+            var url = '/purecloudwebchat/getconversationmemberInfo';
+            var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+            if (message.eventBody.member.state.toUpperCase() === 'CONNECTED') {
+                if (memberId == customermemberId) {
+                    return;
+                }
+                Biz.PureCloud.Utils.sendRequest(url, { ConversationId: message.eventBody.conversation.id, MemberId: memberId, Token: token }, 'Post',
+                    function (data) {
+                        Biz.PureCloud.Chating.showAgentJoinMsg(data, true);
+                    });
+            }
+            else if (message.eventBody.member.state.toUpperCase() === 'DISCONNECTED' && customermemberId == memberId) { // disconnected
+                Biz.PureCloud.Utils.sendRequest(url, { ConversationId: message.eventBody.conversation.id, MemberId: memberId, Token: token }, 'Post', Biz.PureCloud.Chating.memberLeave);
+            }
+        }
+    },
+
+    getMemberTypeFromWebSocket: function (message) {
+        var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+        if (message && message.eventBody && message.eventBody.sender && message.eventBody.sender.id && message.eventBody.sender.id != memberId) {
+            Biz.PureCloud.Chating.showAgentTypingMsg();
+        }
+    },
+
+    getDefaultMessageFromWebSoket: function (message) {
+        //console.log({ message });
+    },
+
+    sendCustomerMsg: function (e) {
+        var chatMessage = Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage');
+        var inputMsg = chatMessage.value;
+        inputMsg = Biz.PureCloud.Utils.trimStr(inputMsg);
+        chatMessage.value = '';
+        Biz.PureCloud.Chating.messageTextScrollSteps = [];
+        Biz.PureCloud.Chating.messageTextLengthSteps = [];
+        Biz.PureCloud.Chating.previousMessageTextClass = '';
+        var inputbar = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClasses(inputbar, ['single-line','double-line', 'triple-line']);
+        var chatContentElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-content');
+        Biz.PureCloud.Utils.removeClasses(chatContentElement, ['single-input-bar', 'double-input-bar', 'triple-input-bar']);
+        if (inputMsg.length == 0) {
+            return;
+        }
+        Biz.PureCloud.Chating.sendCustomerMsgToAgent(inputMsg);
+    },
+
+    sendCustomerMsgToAgent: function (msg) {
+        var sendMessageUrl = '/purecloudwebchat/postconversationmessage';
+        var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+        var memberName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+        var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+        var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+        var language = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE);
+        var uselanguage = '';
+        var showTranslate = true;
+        if (language.toLowerCase() == 'en') {
+            showTranslate = false;
+            uselanguage = language;
+        }
+        
+        var date = new Date();
+        var requestBody = {
+            MemberId: memberId,
+            ConversationID: conversationId,
+            Token: token,
+            Message: Biz.PureCloud.Utils.trimStr(msg),
+            SendTime: date.getTime(),
+            MemberName: memberName,
+            SourceLanguage: uselanguage
+        };
+        
+        Biz.PureCloud.Chating.showCustomerMsg(msg, false, date, showTranslate, null, (new Date()).getTime());
+        Biz.PureCloud.Utils.sendRequest(sendMessageUrl,
+            requestBody, "Post",
+            Biz.PureCloud.Chating.sendCustomerMsgSuccess,
+            Biz.PureCloud.Chating.sendCustomerMsgFailed);  
+    },
+
+    sendCustomerTypingIndicator: function () {
+        var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatState == Biz.PureCloud.Utils.WebChatClose) {
+            return;
+        }
+        var date = new Date();
+        var time = date.getTime();
+        var limitTime = 5 * 1000;
+        if (time - Biz.PureCloud.Chating.lastinputTime >= limitTime) {
+            Biz.PureCloud.Chating.lastinputTime = new Date().getTime();
+            var url = 'purecloudwebchat/ConversationMemberTyping';
+            var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+            var requestData = {
+                ConversationID: conversationId,
+                MemberID: memberId,
+                AuthToken: token
+            };
+            Biz.PureCloud.Utils.sendRequest(url,
+                requestData, "Post",
+                function (data) { },
+                function (err) { });
+        }
+
+    },
+
+    sendCustomerMsgSuccess: function (data) {
+        console.log('ajax');
+        if (data.SendSuccess) {
+            var sendTime = new Date(data.SendTime);
+            var msgElement = Biz.PureCloud.Chating.chatElement.querySelector('#time' + sendTime.getTime());
+            if (msgElement) {
+                var msgId = 'msg_' + data.MsgId;
+                var parentElememt = msgElement.parentElement;
+                if (jQuery('#' + msgId).length > 0) {
+                    jQuery(parentElememt).remove();
+                } else {
+                    parentElememt.setAttribute('id', msgId);
+                    jQuery(msgElement).remove();
+                    if (data.OriLanguage != data.TargetLanguage && data.TranslateMessage) {
+                        jQuery(parentElememt).append('<span class="translation">' + Biz.PureCloud.Utils.relplaceHttpUrl(data.TranslateMessage) + '</span>');
+                    }
+                }
+                if (data.OriLanguage != 'en') {
+                    Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE, data.OriLanguage);
+                }
+            }
+            Biz.PureCloud.Chating.saveChatMessage('CUSTOMER', data.OriMessage, new Date(data.PureCloudSendTime), data.TranslateMessage, data.TargetLanguage, data.OriLanguage, data.MsgId);
+        }
+        else {
+            Biz.PureCloud.Chating.sendCustomerMsgFailed(
+                {
+                    requestData: {
+                        SendTime: data.SendTime,
+                        Message: data.OriMessage
+                    }
+                });
+        }
+    },
+
+    sendCustomerMsgFailed: function (data) {
+        Biz.PureCloud.Chating.isSendBythisWindow = false;
+        if (data && data.requestData) {
+            var sendTime = new Date(data.requestData.SendTime);
+            var msgElement = Biz.PureCloud.Chating.chatElement.querySelector('#time' + sendTime.getTime());
+            if (msgElement) {
+                var parentElememt = msgElement.parentElement;
+                if (parentElememt && parentElememt.parentElement) {
+                    var childrenLength = parentElememt.parentElement.querySelectorAll('.entry-text').length;
+                    if (childrenLength > 1) {
+                        jQuery(parentElememt).remove();
+                    } else {
+                        jQuery(parentElememt.parentElement).remove();
+                    }
+                    
+                }
+            }
+
+            var msgId = '#msg_' + data.requestData.SendTime;
+            if (jQuery(msgId).length > 0) {
+                var notElement = jQuery(msgId).children(':last-child');
+                notElement.remove();
+                jQuery(msgId).append('<span class="time-stamp not-sent">NOT DELIVERED <a href="javascript:void(0)" title="" onclick="Biz.PureCloud.Chating.retryCustomerMsg(this,' + data.requestData.SendTime+')">RETRY</a></span>');
+                return;
+            }
+
+            var html = '<li class="user-entry" id="msg_' + data.requestData.SendTime + '"><span class="entry-text">' + data.requestData.Message +
+                '</span><span class="time-stamp not-sent">NOT DELIVERED <a href="javascript:void(0)" title="" onclick="Biz.PureCloud.Chating.retryCustomerMsg(this,' + data.requestData.SendTime + ')">RETRY</a></span></li>';
+            var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+            var lastElement = content.lastElementChild;
+            var typingElement = null;
+            if (Biz.PureCloud.Chating.isShowAgentTyping) {
+                typingElement = lastElement;
+                lastElement = lastElement.previousSibling;
+            }
+            if (typingElement) {
+                var messageDiv = document.createElement('div');
+                messageDiv.innerHTML = html;
+                content.insertBefore(messageDiv.firstChild, typingElement);
+                jQuery(typingElement).remove();
+                Biz.PureCloud.Chating.isShowAgentTyping = false;
+            } else {
+                content.insertAdjacentHTML("beforeend", html);
+            }
+            var scrollHeight = content.scrollHeight;
+            jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+            jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+        }
+    },
+
+    showHistoryMessage: function (messages) {
+        var msgList = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_MSG_LIST) || [];
+        
+        if (messages && messages.length > 0) {
+            for (var i = 0; i < messages.length; i++) {
+                var msg = messages[i];
+                if (msg.Role === 'AGENT') {
+                    var isExist = false;
+                    for (var j = 0; j < msgList.length; j++) {
+                        if (msgList[j].MessageId == msg.MessageId) {
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if (!isExist) {
+                        var language = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE);
+                        var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+                        var url = '/purecloudwebchat/getagentmessage';
+                        var requestBody = {
+                            AgentMessage: msg.SendMessage,
+                            TargetLanguage: language,
+                            AgentId: msg.SenderID,
+                            ConversationID: conversationId,
+                            MsgID: msg.MessageId,
+                            SendTime: msg.SendTime
+                        };
+                        Biz.PureCloud.Utils.sendRequest(url, requestBody, "Post", Biz.PureCloud.Chating.showAgentMsg);
+                    }
+                }
+            }
+        }
+        for (var index = 0; index < msgList.length; index++) {
+            var message = msgList[index];
+            var data = {
+                OriMessage: message.SendMessage,
+                TargetMessage: message.TranslateMessage,
+                OriLanguage: message.OriLanguage,
+                TargetLanguage: message.TargetLanguage,
+                MessageId: message.MessageId
+            };
+            if (message.Role === 'CUSTOMER') {
+                Biz.PureCloud.Chating.showCustHistoryMsg(data, new Date(message.SendTime));
+            } else if (message.Role === 'AGENT') {
+                Biz.PureCloud.Chating.showAgentMsg(data, false, new Date(message.SendTime), true);
+            } else {
+                Biz.PureCloud.Chating.showNotice(message.SendMessage, false);
+            }
+        }
+        Biz.PureCloud.Utils.removeClass(Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar'), 'disabled');
+        Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage').removeAttribute('disabled', 'disabled');
+        Biz.PureCloud.Chating.chatElement.querySelector('#sendMsgBtn').removeAttribute('disabled', 'disabled');
+    },
+
+    showNotice: function (msg, isClearFull) {
+        var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+        if (msg) {
+            if (content) {
+                var html = '<li class="notice"><span class="notice-text">' + Biz.PureCloud.Utils.relplaceHttpUrl(msg) + '</span></li>';
+                if (isClearFull) {
+                    content.innerHTML = html;
+                } else {
+                    content.insertAdjacentHTML("beforeend", html);
+                }
+                var scrollHeight = content.scrollHeight;
+                jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+                jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+            }
+        } else {
+            if (isClearFull) {
+                content.innerHTML = '';
+            }
+        }
+    },
+
+    showAgentMsg: function (msg, isClearFull, date, isHistory) {
+        if (msg) {
+            if (msg.SendTime) {
+                date = new Date(msg.SendTime);
+            } else {
+                date = date || new Date();
+            }
+            if (!isHistory) {
+                Biz.PureCloud.Chating.addRedTips();
+            }
+            var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+            Biz.PureCloud.Chating.renderMsg({
+                content: content,
+                className: 'agent-entry',
+                date: date,
+                msg: msg.OriMessage,
+                isClearFull: isClearFull,
+                isHistory: isHistory,
+                targetLanguage: msg.TargetLanguage,
+                oriLanguage: msg.OriLanguage,
+                targetMessage: msg.TargetMessage,
+                agentMessage: true,
+                msgId: msg.MessageId
+                
+            });
+            if (!isHistory) {
+                Biz.PureCloud.Chating.saveChatMessage('AGENT', msg.OriMessage, date, msg.TargetMessage, msg.TargetLanguage, msg.OriLanguage, msg.MessageId);
+            }
+            var inputBarElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar');
+            if (Biz.PureCloud.Utils.hasClass(inputBarElement, 'disabled')) {
+                var conversationID = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+                Biz.PureCloud.Chating.getMemberChageFromWebSocket(
+                    {
+                        eventBody: {
+                            member: {
+                                id: msg.AgentId,
+                                state: 'CONNECTED'
+                            },
+                            conversation: {
+                                id: conversationID
+                            }
+                        }
+                    });
+            }
+        }
+    },
+
+    showCustomerMsg: function (msg, isClearFull, date, showtranslate, targetMessage, msgId) {
+        if (msg) {
+            var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+            if (content) {
+                Biz.PureCloud.Chating.renderMsg({
+                    content: content,
+                    className: 'user-entry',
+                    date: date,
+                    msg: msg,
+                    isClearFull: isClearFull,
+                    showtranslate: showtranslate,
+                    customerMessage: true,
+                    targetMessage: targetMessage,
+                    msgId: msgId 
+                });
+            }
+        }
+    },
+
+    showCustHistoryMsg: function (msg, date) {
+        if (msg) {
+            var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+            Biz.PureCloud.Chating.renderMsg({
+                content: content,
+                className: 'user-entry',
+                date: date,
+                msg: msg.OriMessage,
+                isClearFull: false,
+                targetLanguage: msg.TargetLanguage,
+                oriLanguage: msg.OriLanguage,
+                targetMessage: msg.TargetMessage,
+                isHistory: true,
+                msgId: msg.MessageId
+            });
+        }
+    },
+
+    showAgentJoinMsg: function (data, enableSend) {
+        //var currentAgentName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME);
+        if (data && data.Role.toUpperCase() == 'AGENT') {
+            if (Biz.PureCloud.Chating.currentAgentName != data.MemberName) {
+                var agentAvatarImageUrl = data.AvatarImageUrl ? data.AvatarImageUrl : '/content/en/images/agent-headset-icon.png';
+                var html = '<li class="notice chatting-with"><span class="notice-text"><span class="agent-thumbnail"' +
+                    ('style="background-image: url(' + agentAvatarImageUrl + ');') +
+                    '"></span><span class=\"entry-text\">' + String.format(Biz.PureCloud.Config.Notice.ChatWithAgent, data.MemberName) + '</span></span></li>';
+                var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+                content.insertAdjacentHTML("beforeend", html);
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME, data.MemberName);
+                Biz.PureCloud.Chating.currentAgentName = data.MemberName;
+                var scrollHeight = content.scrollHeight;
+                jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+                jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+            }
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_AGENT_ID, data.MemberId);
+            Biz.PureCloud.Chating.updatechatHeader(data);
+            if (enableSend) {
+                Biz.PureCloud.Utils.removeClass(Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar'), 'disabled');
+                Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage').removeAttribute('disabled', 'disabled');
+                Biz.PureCloud.Chating.chatElement.querySelector('#sendMsgBtn').removeAttribute('disabled', 'disabled');
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatChating);
+            }
+        }
+    },
+
+    showAgentTypingMsg: function () {
+        if (Biz.PureCloud.Chating.isShowAgentTyping) {
+            return;
+        }
+        Biz.PureCloud.Chating.isShowAgentTyping = true;
+        var time = new Date().getTime();
+        var typingElement = '<li class="agent-entry" id="typing_' + time+'"><span class="entry-text"><span class="typing-indicator"></span></span></li>';
+        var content = Biz.PureCloud.Chating.chatElement.querySelector("#chatContend");
+        content.insertAdjacentHTML("beforeend", typingElement);
+        scrollHeight = content.scrollHeight;
+        jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+        jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+        Biz.PureCloud.Chating.tyingTimeOutId = setTimeout(function () {
+            var typingElement = Biz.PureCloud.Chating.chatElement.querySelector('#typing_' + time);
+            if (typingElement) {
+                jQuery(typingElement).remove();
+            }
+            Biz.PureCloud.Chating.isShowAgentTyping = false;
+        }, 3000);
+    },
+
+    memberLeave: function (data) {
+        if (data && data.Role.toUpperCase() == 'CUSTOMER') {
+            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            if (conversationId != Biz.PureCloud.Chating.conversationId) {
+                return;
+            }
+            var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+            var loginName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+            var agentName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME);
+            var source = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SOURE);
+            Biz.PureCloud.Chating.chatData = {
+                loginName: loginName,
+                conversationId: conversationId,
+                agentName: agentName,
+                source: source
+            };
+            var inputBar = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-content');
+            if (Biz.PureCloud.Utils.hasClass(inputBar, 'show-chat')) {
+                if (chatState == Biz.PureCloud.Utils.WebChatClose) {
+                    Biz.PureCloud.Chating.showChatEnd();
+                    return;
+                }
+
+                var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+                var url = '/purecloudwebchat/getconversationstate';
+                Biz.PureCloud.Utils.sendRequest(url, { ConversationId: data.ConversationId, MemberId: data.MemberId, Token: token }, 'Post',
+                    function (isChating) {
+                        if (!isChating) {
+                            Biz.PureCloud.Chating.showChatEnd();
+                            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK, false);
+                            var url = '/purecloudwebchat/agentendconversation';
+                            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+                            var transcript_email_checked = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL);
+                            Biz.PureCloud.Utils.sendRequest(url,
+                                {
+                                    ConversationId: conversationId,
+                                    SendTransScript: transcript_email_checked
+                                }, "Post");
+                        }
+                    });
+            }
+        }
+    },
+
+    showChatEnd: function () {
+        Biz.PureCloud.Chating.showNotice(Biz.PureCloud.Config.Notice.ChatEnded);
+        Biz.PureCloud.Utils.addClass(Biz.PureCloud.Chating.chatElement, 'is-agent-offline');
+        Biz.PureCloud.Chating.chatElement.querySelector('#webchatmessage').setAttribute('disabled', 'disabled');
+        Biz.PureCloud.Chating.chatElement.querySelector('#sendMsgBtn').setAttribute('disabled', 'disabled');
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatClose);
+        var inputBarElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar');
+        if (!inputBarElement || !Biz.PureCloud.Utils.hasClass(inputBarElement, 'show-submit')) {
+            Biz.PureCloud.Utils.addClass(Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar'), 'disabled');
+        }
+        Biz.PureCloud.Chating.currentAgentName = '';
+        if (Biz.PureCloud.Chating.socket) {
+            Biz.PureCloud.Chating.socket.close();
+        }
+    },
+
+    updatechatHeader: function (data) {
+        var chatHeaderElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-header');
+        if (chatHeaderElement) {
+            Biz.PureCloud.Utils.removeClass(chatHeaderElement, 'no-name');
+            var agentImageElement = document.querySelector('.agent-icon');
+            if (data.AvatarImageUrl) {
+                if (agentImageElement) {
+                    agentImageElement.style.backgroundImage = 'url(' + data.AvatarImageUrl + ')';
+                }
+                var stateElement = agentImageElement.lastElementChild;
+                if (stateElement) {
+                    stateElement.style.backgroundColor = '';
+                }
+            } else {
+                if (agentImageElement) {
+                    agentImageElement.style.backgroundImage = 'url(content/en/images/agent-headset-icon.png)';
+                    agentImageElement.style.backgroundColor = '#cc4e00';
+                    agentImageElement.style.backgroundSize = '90%';
+                }
+            }
+            if (data.MemberName) {
+                var nameElement = document.querySelector('.NE-chat-agent-name').lastElementChild;
+                if (nameElement) {
+                    nameElement.innerHTML = Biz.PureCloud.Utils.HTMLEncode(data.MemberName);
+                }
+            }
+        }
+    },
+
+    handleMessageTextUpdate: function (event) {
+        var classSteps = ['single-line', 'double-line', 'triple-line'];
+        var chatClassSteps = ['single-input-bar', 'double-input-bar', 'triple-input-bar'];
+        var currentClass;
+        var currentChatClass;
+        var thisScrollH = event.target.scrollHeight;
+        var thisScrollHindex = Biz.PureCloud.Chating.messageTextScrollSteps.indexOf(thisScrollH);
+        var thisTextLength = event.target.textLength ? event.target.textLength : event.target.innerHTML.length;
+        var isHeightInArray = thisScrollHindex >= 0;
+
+        // manage array values
+        // check messageTextScrollSteps array for value
+        if (isHeightInArray) {
+            // udpate the text length steps, so steps reflect max char per line
+            Biz.PureCloud.Chating.messageTextLengthSteps[Biz.PureCloud.Chating.messageTextScrollSteps.length - 1] = thisTextLength;
+        } else {
+            // store value
+            Biz.PureCloud.Chating.messageTextScrollSteps.push(thisScrollH);
+            Biz.PureCloud.Chating.messageTextLengthSteps.push(thisTextLength);
+
+            thisScrollHindex = Biz.PureCloud.Chating.messageTextScrollSteps.indexOf(thisScrollH);
+        }
+
+        // adjust class based on scrollheight/text length measurement
+        // interate over length array until value is less than value
+        for (var i = 0; i < Biz.PureCloud.Chating.messageTextLengthSteps.length; i++) {
+            var thisStep = i,
+                isLessThan = thisTextLength <= Biz.PureCloud.Chating.messageTextLengthSteps[thisStep];
+
+            // if the value is less than current step value, we stop
+            if (isLessThan) {
+                // kill loop, we found our range
+                i = Biz.PureCloud.Chating.messageTextLengthSteps.length;
+
+                // advance current classes by step range
+                if (thisStep < 2) {
+                    currentClass = classSteps[thisStep];
+                    currentChatClass = chatClassSteps[thisStep];
+                } else if (thisStep >= 2) {
+                    currentClass = classSteps[2];
+                    currentChatClass = chatClassSteps[2];
+                }
+            }
+        }
+
+        // if classes have changed, change them, prevent constant class updates
+        if (currentClass != Biz.PureCloud.Chating.previousMessageTextClass) {
+            // update classes
+            var inputBarElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-input-bar');
+            Biz.PureCloud.Utils.removeClasses(inputBarElement, classSteps);
+            Biz.PureCloud.Utils.addClass(inputBarElement, currentClass);
+
+            var chatContentElement = Biz.PureCloud.Chating.chatElement.querySelector('.NE-chat-content');
+            Biz.PureCloud.Utils.removeClasses(chatContentElement, chatClassSteps);
+            Biz.PureCloud.Utils.addClass(chatContentElement, currentChatClass);
+
+            // store for later
+            Biz.PureCloud.Chating.previousMessageTextClass = currentClass;
+        }
+
+        Biz.PureCloud.Chating.sendCustomerTypingIndicator();
+    },
+
+    messageInputKeyUp: function (event) {
+        if (event.keyCode == 13) { // enter event
+            Biz.PureCloud.Chating.messageTextScrollSteps = [];
+            Biz.PureCloud.Chating.messageTextLengthSteps = [];
+            Biz.PureCloud.Chating.previousMessageTextClass = '';
+            Biz.PureCloud.Chating.sendCustomerMsg(event);
+            event.cancelBubble = true;
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    },
+
+    renderMsg: function (data) {
+        if (!data.msg) {
+            return;
+        }
+        date = data.date || new Date();
+        var dateStr = date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        var msgContent = '<span class="entry-text" id="msg_' + data.msgId + '" >' + Biz.PureCloud.Utils.relplaceHttpUrl(data.msg) + '';
+        if (data.isHistory) {
+            if (data.targetMessage && data.targetLanguage != data.oriLanguage) {
+                msgContent += '<span class="translation">' + Biz.PureCloud.Utils.relplaceHttpUrl(data.targetMessage) + '</span>';
+            }
+        } else {
+            if (data.customerMessage) {
+                if (data.targetMessage) {
+                    msgContent += '<span class="translation" id="time' + date.getTime() + '" ' + (data.showtranslate ? '' : 'style = "display:none"') + '>' + Biz.PureCloud.Utils.relplaceHttpUrl(data.targetMessage) + '</span>';
+                } else {
+                    msgContent += '<span class="translation" id="time' + date.getTime() + '" ' + (data.showtranslate ? '' : 'style = "display:none"') + '><span class="typing-indicator"></span></span>';
+                }
+            }
+            else if (data.agentMessage) {
+                if (data.targetMessage && data.targetLanguage != data.oriLanguage) {
+                    msgContent += '<span class="translation">' + Biz.PureCloud.Utils.relplaceHttpUrl(data.targetMessage) + '</span>';
+                }
+            }
+        }
+        msgContent += '</span>';
+        var lastElement = data.content.lastElementChild;
+        var html = '';
+        var scrollHeight = 0;
+        var typingElement = null;
+        if (Biz.PureCloud.Chating.isShowAgentTyping) {
+            typingElement = lastElement;
+            lastElement = lastElement.previousSibling;
+        }
+        if (lastElement && data.className.indexOf(lastElement.getAttribute('class')) > -1) { // has main element
+            var lastchatTime = lastElement.getAttribute('data-type');
+            if (lastchatTime == dateStr) { // same time
+                var tempNode = document.createElement('div');
+                tempNode.innerHTML = msgContent;
+                var newMessageNode = tempNode.firstChild;
+                var msgLastElement = lastElement.lastElementChild;
+                lastElement.insertBefore(newMessageNode, msgLastElement);
+                scrollHeight = data.content.scrollHeight;
+                jQuery(data.content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+                jQuery(data.content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+                if (typingElement) {
+                    clearTimeout(Biz.PureCloud.Chating.tyingTimeOutId);
+                    jQuery(typingElement).remove();
+                    Biz.PureCloud.Chating.isShowAgentTyping = false;
+                }
+                return;
+            } else {
+                html = '<li class="' + data.className + '" data-type="' + dateStr + '">' + msgContent;
+                html += '<span class="time-stamp">' + dateStr + '</span></li>';
+            }
+        } else {
+            html = '<li class="' + data.className + '" data-type="' + dateStr + '">' + msgContent;
+            html += '<span class="time-stamp">' + dateStr + '</span></li>';
+        }
+        if (data.isClearFull) {
+            data.content.innerHTML = html;
+        } else {
+            if (typingElement) {
+                clearTimeout(Biz.PureCloud.Chating.tyingTimeOutId);
+                var messageDiv = document.createElement('div');
+                messageDiv.innerHTML = html;
+                data.content.insertBefore(messageDiv.firstChild, typingElement);
+                jQuery(typingElement).remove();
+                Biz.PureCloud.Chating.isShowAgentTyping = false;
+            } else {
+                data.content.insertAdjacentHTML("beforeend", html);
+            }
+        }
+        scrollHeight = data.content.scrollHeight;
+        jQuery(data.content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+        jQuery(data.content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+    },
+
+    saveChatMessage: function (role, sendmessage, sendtime, translateMessage, targetLanguage, oriLanguage, msgId) {
+        var msgList = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_MSG_LIST) || [];
+        var hasStore = false;
+        for (var i = 0; i < msgList.length; i++) {
+            if (msgList[i].MessageId == msgId) {
+                hasStore = true;
+                break;
+            }
+        }
+        if (hasStore) {
+            return;
+        }
+        var data = {
+            Role: role,
+            SendMessage: sendmessage,
+            SendTime: sendtime,
+            TranslateMessage: translateMessage,
+            TargetLanguage: targetLanguage,
+            OriLanguage: oriLanguage,
+            MessageId: msgId
+        };
+        if (targetLanguage == oriLanguage) {
+            data.TranslateMessage = '';
+            data.TargetLanguage = '';
+        }
+        if (!msgList || msgList.length == 0) {
+            msgList = [];
+        } 
+        msgList.push(data);
+        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_MSG_LIST, msgList);
+    },
+
+    retryCustomerMsg: function (element, time) {
+        var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatState == Biz.PureCloud.Utils.WebChatClose) {
+            return;
+        }
+        var noteElement = jQuery(element).parent();
+        var userMsgElement = jQuery(noteElement).parent();
+        var msg = userMsgElement.children(':first-child').text();
+        var html = '<span class="time-stamp"><span class="typing-indicator"></span></span>';
+        noteElement.remove();
+        userMsgElement.append(html);
+        Biz.PureCloud.Chating.retrySendCustomerMsgToAgent(msg, userMsgElement, new Date(time));
+    },
+
+    retrySendCustomerMsgToAgent: function (msg, msgNode, date) {
+        var sendMessageUrl = '/purecloudwebchat/postconversationmessage';
+        var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+        var memberName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+        var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+        var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+        var language = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE);
+        var uselanguage = '';
+        if (language.toLowerCase() == 'en') {
+            uselanguage = language;
+        }
+        date = date || new Date();
+        var requestBody = {
+            MemberId: memberId,
+            ConversationID: conversationId,
+            Token: token,
+            Message: Biz.PureCloud.Utils.trimStr(msg),
+            SendTime: date.getTime(),
+            MemberName: memberName,
+            SourceLanguage: uselanguage
+        };
+        Biz.PureCloud.Utils.sendRequest(sendMessageUrl,
+            requestBody, "Post",
+            function (data) {
+                if (data.SendSuccess) {
+                    msgNode.remove();
+                    if (data.OriLanguage != 'en') {
+                        Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_LANGUAGE, data.OriLanguage);
+                    }
+                    Biz.PureCloud.Chating.saveChatMessage('CUSTOMER', data.OriMessage, new Date(data.PureCloudSendTime), data.TranslateMessage, data.TargetLanguage, data.OriLanguage, data.MsgId);
+                } else {
+                    Biz.PureCloud.Chating.sendCustomerMsgFailed(
+                        {
+                            requestData: {
+                                SendTime: data.SendTime,
+                                Message: data.OriMessage
+                            }
+                        });
+                }
+            },
+            Biz.PureCloud.Chating.sendCustomerMsgFailed);
+    },
+
+    addRedTips: function () {
+        if (!Biz.PureCloud.Utils.windowOpen) {
+            jQuery("#redTip").show();
+        }
+    },
+
+    removeRedTip: function () {
+        jQuery("#redTip").hide();
+    }
+};
+
+usingNamespace("Biz.PureCloud")["Confirm"] = {
+
+    chatElement: null,
+
+    init: function (data) {
+        var exist = true;
+        if (!Biz.PureCloud.Confirm.chatElement) {
+            Biz.PureCloud.Confirm.chatElement = data.chatElement;
+            exist = false;
+        }
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        if (exitElement) {
+            var checkElement = exitElement.querySelector('.form-checkbox-title').lastElementChild;
+            if (checkElement) {
+                var email = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_EMAIL);
+                checkElement.innerHTML = Biz.PureCloud.Utils.HTMLEncode(email);
+            }
+            var transcriptElement = exitElement.querySelector('#sendmetranscript');
+            if (transcriptElement) {
+                var checked = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL);
+                transcriptElement.checked = checked;
+            }
+            leaveChatBTN = Biz.PureCloud.Confirm.chatElement.querySelector('.leave-chat');
+            leaveChatBTN && leaveChatBTN.removeAttribute('disabled');
+            continueChatBTN = Biz.PureCloud.Confirm.chatElement.querySelector('.continue-chat');
+            continueChatBTN && continueChatBTN.removeAttribute('disabled');
+        }
+        if (!exist) {
+            Biz.PureCloud.Confirm.registClickEvent();
+        }
+    },
+
+    registClickEvent: function () {
+        leaveChatBTN = Biz.PureCloud.Confirm.chatElement.querySelector('.leave-chat');
+        leaveChatBTN && leaveChatBTN.addEventListener('click', Biz.PureCloud.Confirm.handleLeaveChatClick);
+        continueChatBTN = Biz.PureCloud.Confirm.chatElement.querySelector('.continue-chat');
+        continueChatBTN && continueChatBTN.addEventListener('click', Biz.PureCloud.Confirm.handleContinueChatClick);
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        if (exitElement) {
+            var trasncriptElement = exitElement.querySelector('.form-checkbox');
+            trasncriptElement && trasncriptElement.addEventListener('click', Biz.PureCloud.Confirm.handleTranscriptClick);
+        }
+    },
+
+    handleLeaveChatClick: function () {
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        Biz.PureCloud.Utils.removeClass(exitElement, 'show-confirm');
+        Biz.PureCloud.Utils.addClasses(exitElement, ['show-survey', 'is-visible']);
+        var surveyElement = exitElement.querySelector('.experience-survey');
+        if (surveyElement) {
+            surveyElement.innerHTML = '<a class="NE-close-now" title="close chat"><i class="fa fa-times"></i></a>';
+        }
+        var inputBarElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-message']);
+        Biz.PureCloud.Utils.addClasses(inputBarElement, ['show-submit', 'disabled']);
+        var loadingElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-loading-backdrop');
+        if (loadingElement) {
+            loadingElement.style.display = '';
+        }
+        var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+        if (Biz.PureCloud.Chating.conversationId != conversationId) {
+            Biz.PureCloud.ChatWithUs.hideChatWindow();
+            Biz.PureCloud.ChatLogin.resetChatWindow();
+            Biz.PureCloud.Utils.removeClass(Biz.PureCloud.Confirm.chatElement, 'is-agent-offline');
+            var chatHeaderElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-header');
+            if (chatHeaderElement) {
+                chatHeaderElement && Biz.PureCloud.Utils.addClass(chatHeaderElement, 'no-name');
+                var agentImageElement = chatHeaderElement.querySelector('.agent-icon');
+                if (agentImageElement) {
+                    agentImageElement.style.backgroundImage = '';
+                }
+                var nameElement = chatHeaderElement.querySelector('.NE-chat-agent-name').lastElementChild;
+                if (nameElement) {
+                    nameElement.innerHTML = '';
+                }
+            } 
+            loadingElement.style.display = 'none';
+            return;
+        }
+        // send end chat
+        var url = '/purecloudwebchat/endconversation';
+        var memberId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CUSTOMER_MEMBER_ID);
+        var transcript_email_checked = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL);
+        var token = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_TOKEN);
+        var email = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_EMAIL);
+        Biz.PureCloud.Utils.sendRequest(url,
+            {
+                ConversationId: conversationId,
+                MemberId: memberId,
+                Token: token,
+                SendTransScript: transcript_email_checked,
+                EmailAddress: email
+            }, "Post", Biz.PureCloud.Confirm.endConversationSuccess,
+            Biz.PureCloud.Confirm.endConversationFailed
+        );
+    },
+
+    handleContinueChatClick: function () {
+
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        Biz.PureCloud.Utils.removeClass(exitElement, 'show-confirm');
+        Biz.PureCloud.Utils.removeClass(exitElement, 'is-visible');
+
+        var content = Biz.PureCloud.Confirm.chatElement.querySelector("#chatContend");
+        var scrollHeight = content.scrollHeight;
+        jQuery(content.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+        jQuery(content.parentElement.parentElement).animate({ "scrollTop": scrollHeight }, 100);
+    },
+
+    handleTranscriptClick: function (event) {
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        if (exitElement) {
+            var transcriptElement = exitElement.querySelector('#sendmetranscript');
+            if (transcriptElement) {
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_SEND_TRANSCRIPT_EMAIL, transcriptElement.checked);
+            }
+        }
+       
+    },
+
+    endConversationSuccess: function (data) {
+        if (data === true) {
+            if (Biz.PureCloud.Chating.socket) {
+                Biz.PureCloud.Chating.socket.close();
+            }
+            Biz.PureCloud.Chating.currentAgentName = '';
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_STATE, Biz.PureCloud.Utils.WebChatClose);
+            var conversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            var agentName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_AGENT_NAME);
+            if (conversationId == Biz.PureCloud.Chating.conversationId && agentName) {
+                Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK, false);
+                var loginName = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_USER_NAME);
+                var source = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_SOURE);
+                Biz.PureCloud.Chating.chatData = {
+                    loginName: loginName,
+                    conversationId: conversationId,
+                    agentName: agentName,
+                    source: source
+                };
+               
+                Biz.PureCloud.Feedback.init({
+                    chatElement: Biz.PureCloud.Confirm.chatElement,
+                    chatData: Biz.PureCloud.Chating.chatData
+                });
+                Biz.PureCloud.Chating.chatData = {};
+            } else {
+                var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+                Biz.PureCloud.Utils.removeClass(exitElement, "show-confirm");
+                Biz.PureCloud.ChatWithUs.hideChatWindow();
+                Biz.PureCloud.ChatLogin.resetChatWindow();
+                var loadingElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-loading-backdrop');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+            }
+        } else {
+            Biz.PureCloud.Confirm.endConversationFailed();
+        }
+    },
+
+    endConversationFailed: function (err) {
+        var exitElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-exit');
+        Biz.PureCloud.Utils.removeClasses(exitElement, ['show-survey', 'is-visible']);
+        Biz.PureCloud.Utils.addClass(exitElement, 'show-confirm');
+        var inputBarElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-input-bar');
+        var chatState = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_STATE);
+        if (chatState == Biz.PureCloud.Utils.WebChatConnecting) {
+            Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-submit']);
+            Biz.PureCloud.Utils.addClass(inputBarElement, 'show-message');
+        } else {
+            Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-submit', 'disabled']);
+            Biz.PureCloud.Utils.addClass(inputBarElement, 'show-message');
+        }
+      
+        var loadingElement = Biz.PureCloud.Confirm.chatElement.querySelector('.NE-chat-loading-backdrop');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+        var errorTips = Biz.PureCloud.Confirm.chatElement.querySelector(".NE-chat-dialog-backdrop");
+        if (errorTips) {
+            errorTips.style.display = 'flex';
+        }
+    }
+};
+
+usingNamespace("Biz.PureCloud")["Feedback"] = {
+
+    chatElement: null,
+    commentHashCode: '',
+    exist: true,
+    feedbackbasicData: {},
+
+    init: function (data) {
+        Biz.PureCloud.Feedback.feedbackbasicData = data.chatData;
+        if (!Biz.PureCloud.Feedback.chatElement) {
+            Biz.PureCloud.Feedback.chatElement = data.chatElement;
+            Biz.PureCloud.Feedback.exist = false;
+        }
+        var existWindowElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-exit');
+        var surveyElement = existWindowElement.querySelector('.experience-survey');
+        if (surveyElement) {
+            surveyElement.innerHTML = '<a class="NE-close-now" title="close chat"><i class="fa fa-times"></i></a>';
+        }
+
+        var exitElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-exit');
+        Biz.PureCloud.Utils.removeClass(exitElement, 'show-confirm');
+        Biz.PureCloud.Utils.addClasses(exitElement, ['show-survey', 'is-visible']);
+        var inputBarElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-message']);
+        Biz.PureCloud.Utils.addClasses(inputBarElement, ['show-submit', 'disabled']);
+        var loadingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-loading-backdrop');
+        if (loadingElement) {
+            loadingElement.style.display = '';
+        }
+        Biz.PureCloud.Feedback.getFeedbackData();
+    },
+
+    getFeedbackData: function () {
+        var url = '/purecloudwebchat/getfeedback';
+        Biz.PureCloud.Utils.sendRequest(url, {}, 'Get', Biz.PureCloud.Feedback.getFeedBackDataSuccess, function () {
+            var loadingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-loading-backdrop');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            Biz.PureCloud.Chating.chatData = {};
+            Biz.PureCloud.ChatWithUs.hideChatWindow();
+            Biz.PureCloud.ChatLogin.resetChatWindow();
+        });
+    },
+
+    registChatClickEvent: function () {
+        var exitElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-exit');
+        var ratingIcons = exitElement.querySelectorAll('.rating-eggs span');
+        for (var i = 0; i < ratingIcons.length; i++) {
+            ratingIcons[i].addEventListener('pointerover', Biz.PureCloud.Feedback.handleRatingIconHover);
+            ratingIcons[i].addEventListener('pointerleave', Biz.PureCloud.Feedback.handleRatingIconLeave);
+            ratingIcons[i].addEventListener('click', Biz.PureCloud.Feedback.handleRatingIconClick);
+        }
+        var inputBarElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-input-bar');
+        if (inputBarElement) {
+            var submitSurveyBTN = inputBarElement.querySelector('.submit-btn');
+            submitSurveyBTN && submitSurveyBTN.addEventListener('click', Biz.PureCloud.Feedback.handleSuverySubmitClick);
+        }
+        var closeNowBTNs = exitElement.querySelectorAll('.NE-close-now');
+        for (var y = 0; y < closeNowBTNs.length; y++) {
+            closeNowBTNs[y].addEventListener('click', Biz.PureCloud.Feedback.closeChatWindow);
+        }
+        // textarea
+        var textAreas = exitElement.querySelectorAll('textarea.expandable');
+        for (var n = 0; n < textAreas.length; n++) {
+            textAreas[n].addEventListener('input', function (event) {
+                if (event.target.tagName.toLowerCase() !== 'textarea') return;
+                Biz.PureCloud.ChatLogin.autoExpand(event.target);
+            });
+            textAreas[n].addEventListener('input', Biz.PureCloud.ChatLogin.calculateLength);
+        }
+    },
+
+    handleRatingIconHover: function (e) {
+        var value = e.target.getAttribute('data-value'),
+            parent = jQuery(e.target).closest('.rating-eggs')[0];
+
+        // update classes
+        Biz.PureCloud.Utils.addClass(parent, ('hover-' + value));
+    },
+
+    handleRatingIconLeave: function (e){
+        var parent = jQuery(e.target).closest('.rating-eggs')[0];
+        // update classes
+        Biz.PureCloud.Utils.removeClasses(parent, ['hover-1', 'hover-2', 'hover-3', 'hover-4', 'hover-5']);
+    },
+
+    handleRatingIconClick: function (e) {
+        var clickedVal = e.target.getAttribute('data-value'),
+            parent = jQuery(e.target).closest('.rating-eggs')[0],
+            clickedFeedVal = e.target.getAttribute('data-type'),
+            input = parent.querySelector('input');
+
+        // update parent with attribute, CSS handles the rest
+        parent.removeAttribute('class');
+        Biz.PureCloud.Utils.addClasses(parent, ['rating-eggs', ('rating-' + clickedVal)]);
+
+        // also add value to a hidden input, will make
+        input.setAttribute('value', clickedFeedVal);
+    },
+
+    handleSuverySubmitClick: function () {
+        var clearToMoveForward = Biz.PureCloud.Feedback.validateSurveyInputs();
+
+        // if were clear to go, move forward
+        if (clearToMoveForward) {
+            var chatingConversationId = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            var conversationId = Biz.PureCloud.Feedback.feedbackbasicData.conversationId;
+            var loginName = Biz.PureCloud.Feedback.feedbackbasicData.loginName;
+            var agentName = Biz.PureCloud.Feedback.feedbackbasicData.agentName;
+            var source = Biz.PureCloud.Feedback.feedbackbasicData.source;
+            var hasSubmit = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK);
+            var canSubmit = false;
+            if (chatingConversationId) {
+                canSubmit = chatingConversationId == conversationId;
+            } else {
+                canSubmit = true;
+            }
+            if (loginName && conversationId && agentName && source
+                && canSubmit && hasSubmit == false) {
+                var ratings = Biz.PureCloud.Feedback.chatElement.querySelectorAll('.experience-survey .rating-eggs input');
+                var answers = [];
+                for (var i = 0; i < ratings.length; i++) {
+                    var thisValue = ratings[i].value;
+                    var thisId = ratings[i].getAttribute('data-rate');
+                    answers.push({ QuestionMasterId: thisId, Value: thisValue });
+                }
+                var comments = Biz.PureCloud.Feedback.chatElement.querySelectorAll('.experience-survey .ratings textarea');
+                for (var j = 0; j < comments.length; j++) {
+                    var commentsValue = comments[j].value;
+                    var comentsId = comments[j].getAttribute('data-rate');
+                    answers.push({ QuestionMasterId: comentsId, Value: commentsValue });
+                }
+                var os = Biz.PureCloud.Utils.getOSInfo();
+                var browser = Biz.PureCloud.Utils.getBrowserInfo();
+                var url = '/purecloudwebchat/postfeedback';
+                var requestData = {
+                    CommentHashCode: Biz.PureCloud.Feedback.commentHashCode,
+                    ScreenResolution: screen.width + 'x' + screen.height,
+                    PreviousPage: document.referrer,
+                    RequestURL: window.location.href,
+                    UserAgent: navigator.userAgent,
+                    OSName: os.name,
+                    OSVersion: os.version,
+                    BrowserVersion: browser.client.version,
+                    BrowserName: browser.client.name,
+                    Answers: answers,
+                    Variables: [{ Key: 'LoginName', Value: loginName },
+                    { Key: 'SessionID', Value: conversationId },
+                    { Key: 'AgentName', Value: agentName },
+                    { Key: 'Source', Value: source }]
+                };
+                var jsonData = JSON.stringify(requestData);
+                Biz.PureCloud.Utils.sendRequest(url, { Data: jsonData }, 'Post', Biz.PureCloud.Feedback.submitSurveySuccess, Biz.PureCloud.Feedback.submitSurveyFailed);
+            } else {
+                Biz.PureCloud.Feedback.submitSurveySuccess();
+            }
+        } else {
+            // show validation message?
+        }
+    },
+
+    validateSurveyInputs: function () {
+        var ratings = Biz.PureCloud.Feedback.chatElement.querySelectorAll('.experience-survey .rating-eggs input'),
+            comments = Biz.PureCloud.Feedback.chatElement.querySelectorAll('.experience-survey .ratings textarea');
+            isValid = false,
+            results = [];
+
+        // check ratings, make sure theres something
+        for (var i = 0; i < ratings.length; i++) {
+            var ratingItem = jQuery(ratings[i]).closest('.rating-item')[0],
+                thisValue = ratings[i].value,
+                thisRequired = ratings[i].getAttribute('data-required') == 1,
+                hasRating = thisRequired ? thisValue.length > 0 : true;
+
+            // return the bool value to results
+            results.push(hasRating);
+
+            // toggle notification
+            if (!hasRating) {
+                Biz.PureCloud.Utils.addClass(ratingItem, 'is-error');
+            } else {
+                Biz.PureCloud.Utils.removeClass(ratingItem, 'is-error');
+            }
+        }
+
+        for (var j = 0; j < comments.length; j++) {
+            var commentsValue = comments[j].value;
+            var commentsRequired = comments[j].getAttribute('data-required') == 1;
+            var commentsHasRating = commentsRequired ? commentsValue.length > 0 : true;
+
+            // return the bool value to results
+            results.push(commentsHasRating);
+
+            // toggle notification
+            if (!commentsHasRating) {
+                Biz.PureCloud.Utils.addClass(comments[j], 'is-error');
+            } else {
+                Biz.PureCloud.Utils.removeClass(comments[j], 'is-error');
+            }
+        }
+
+        // prep final check
+        isValid = results.indexOf(false) < 0;
+
+        // return check
+        return isValid;
+    },
+
+    submitSurveySuccess: function (data) {
+        
+        var conversationID = Biz.PureCloud.LocalStorage.getData(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+        if (Biz.PureCloud.Feedback.feedbackbasicData.conversationId == conversationID) {
+            Biz.PureCloud.LocalStorage.clearItem(Biz.PureCloud.LocalStorage.CHAT_CONVERSATION_ID);
+            Biz.PureCloud.LocalStorage.setData(Biz.PureCloud.LocalStorage.CHAT_HAS_SUBMIT_FEEDBACK, true);
+        }
+        Biz.PureCloud.Feedback.feedbackbasicData = {};
+        var exitElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-exit');
+        // hide survey, show exit message
+        Biz.PureCloud.Utils.removeClass(exitElement, 'show-survey');
+        Biz.PureCloud.Utils.addClass(exitElement, 'show-message');
+
+        // update input bar
+        var inputBarElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-input-bar');
+        Biz.PureCloud.Utils.removeClasses(inputBarElement, ['show-continue', 'show-message', 'show-none', 'show-submit', 'disabled']);
+        Biz.PureCloud.Utils.addClass(inputBarElement, 'show-close');
+        var closeNowBTNs = Biz.PureCloud.Feedback.chatElement.querySelectorAll('.NE-close-now');
+        for (var y = 0; y < closeNowBTNs.length; y++) {
+            closeNowBTNs[y].addEventListener('click', Biz.PureCloud.Feedback.closeChatWindow);
+        }
+    },
+
+    closeChatWindow: function () {
+        // if chatElement exists, do it.
+        if (Biz.PureCloud.Feedback.chatElement) {
+            Biz.PureCloud.Chating.chatData = {};
+            Biz.PureCloud.ChatWithUs.hideChatWindow();
+            Biz.PureCloud.ChatLogin.resetChatWindow();
+        }
+    },
+
+    getFeedBackDataSuccess: function (data) {
+        var existWindowElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-exit');
+        if (!Biz.PureCloud.Utils.hasClass(existWindowElement, "show-survey")) {
+            return;
+        }
+        if (data && data.HashCode) {
+            Biz.PureCloud.Feedback.commentHashCode = data.HashCode;
+            var surveyElement = existWindowElement.querySelector('.experience-survey');
+            if (surveyElement) {
+                var headerElement = document.createElement('h5');
+                headerElement.innerHTML = 'Please rate your chat experience';
+                var ratingElement = document.createElement('div');
+                ratingElement.setAttribute('class', 'ratings');
+                surveyElement.appendChild(headerElement);
+                surveyElement.appendChild(ratingElement);
+                if (data.Questions.length > 0) {
+                    for (var i = 0; i < data.Questions.length; i++) {
+                        var question = data.Questions[i];
+                        if (question.QuestionType.toLowerCase() == 'rating') {
+                            Biz.PureCloud.Feedback.renderRatingItem(question);
+                        } else {
+                            Biz.PureCloud.Feedback.renderCommentItem(question);
+                        }
+                    }
+                }
+
+                var inputBarElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-input-bar');
+                Biz.PureCloud.Utils.removeClass(inputBarElement, 'disabled');
+            }
+            if (!Biz.PureCloud.Feedback.exist) {
+                Biz.PureCloud.Feedback.registChatClickEvent();
+            }
+        } else {
+            Biz.PureCloud.Chating.chatData = {};
+            Biz.PureCloud.ChatWithUs.hideChatWindow();
+            Biz.PureCloud.ChatLogin.resetChatWindow();
+        }
+
+        var loadingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-loading-backdrop');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+    },
+
+    renderRatingItem: function (question) {
+       
+        if (question.Answers && question.Answers.length > 0) {
+            var html = '<div class="rating-item">';
+            html += ' <label>' + question.QuestionText + '</label>';
+            html += '<div class="rating-eggs" >';
+            for (var i = 0; i < question.Answers.length; i++) {
+                var ratingEgg = question.Answers[i];
+                html += '<span class="rating-egg" data-value="' + (i + 1) + '" data-type="' + ratingEgg.Value + '"></span>';
+            }
+            html += '<input type="hidden" name="question' + question.QuestionMasterId + '-rating" data-rate="' + question.QuestionMasterId + '" value="" data-required="' + (question.IsRequired ? 1 : 0) + '">';
+            html += '</div>';
+            html += '</div>';
+
+            var ratingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.ratings');
+            ratingElement && ratingElement.insertAdjacentHTML("beforeend", html);
+        }
+    },
+
+    renderCommentItem: function (question) {
+        var html = '<div class="comment-input">';
+        html += '<label class="form-cell-name">' + question.QuestionText + (question.IsRequired ? '' : ' <span class="small">(OPTIONAL)</span>') + '</label>';
+        html += '<textarea class="form-textarea is-wide expandable" maxlength="300" data-required="' + (question.IsRequired ? 1 : 0) + '" data-rate="' + question.QuestionMasterId +'"></textarea>';
+        html += '<div class="form-textarea-counter"><span>0</span>/ 300</div>';
+
+        var ratingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.ratings');
+        ratingElement && ratingElement.insertAdjacentHTML("beforeend", html);
+    },
+
+    submitSurveyFailed: function (err) {
+        var errorTips = Biz.PureCloud.Feedback.chatElement.querySelector(".NE-chat-dialog-backdrop");
+        if (errorTips) {
+            errorTips.style.display = 'flex';
+        }
+        var loadingElement = Biz.PureCloud.Feedback.chatElement.querySelector('.NE-chat-loading-backdrop');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+        if (!Biz.PureCloud.Feedback.exist) {
+            Biz.PureCloud.Feedback.registChatClickEvent();
+        }
+    }
+};
+
+usingNamespace("Biz.PureCloud")["Utils"] = {
+    WebChatConnecting: 'Connecting',
+    WebChatWaitChating: 'Waiting',
+    WebChatClose: 'Ended',
+    WebChatChating: "Chating",
+    windowOpen: true,
+
+    getOSInfo: function () {
+        var userAgent = navigator.userAgent.toLowerCase();
+        var name = 'Unknown';
+        var version = "Unknown";
+        if (userAgent.indexOf("win") > -1) {
+            if (userAgent.indexOf("windows nt 5.0") > -1) {
+                name = "Win 2000";
+                version = "2000";
+            } else if (userAgent.indexOf("windows nt 5.1") > -1 || userAgent.indexOf("windows nt 5.2") > -1) {
+                name = "Win XP";
+                version = "XP";
+            } else if (userAgent.indexOf("windows nt 6.0") > -1) {
+                name = "Win Vista";
+                version = "Vista";
+            } else if (userAgent.indexOf("windows nt 6.1") > -1 || userAgent.indexOf("windows 7") > -1) {
+                name = "Win 7";
+                version = "7";
+            } else if (userAgent.indexOf("windows nt 6.2") > -1 || userAgent.indexOf("windows 8") > -1) {
+                name = "Win 8";
+                version = "8";
+            } else if (userAgent.indexOf("windows nt 6.3") > -1) {
+                name = "Win 8.1";
+                version = "8.1";
+            } else if (userAgent.indexOf("windows nt 6.2") > -1 || userAgent.indexOf("windows nt 10.0") > -1) {
+                name = "Win 10";
+                version = "10";
+            } else {
+                version = "Unknown";
+            }
+        } else if (userAgent.indexOf("iphone") > -1) {
+            name = "Iphone";
+        } else if (userAgent.indexOf("mac") > -1) {
+            name = "Mac";
+        } else if (userAgent.indexOf("x11") > -1 || userAgent.indexOf("unix") > -1 || userAgent.indexOf("sunname") > -1 || userAgent.indexOf("bsd") > -1) {
+            name = "Unix";
+        } else if (userAgent.indexOf("linux") > -1) {
+            if (userAgent.indexOf("android") > -1) {
+                name = "Android"
+            } else {
+                name = "Linux";
+            }
+
+        } else {
+            name = "Unknown";
+        }
+        var os = new Object();
+        os.name = name;
+        os.version = version;
+        return os;
+    },
+
+    getBrowserInfo: function() {
+        var Browser = Browser || (function (window) {
+            var document = window.document,
+                navigator = window.navigator,
+                agent = navigator.userAgent.toLowerCase(),
+                IEMode = document.documentMode,
+                //chorme
+                chrome = window.chrome || false,
+                System = {
+                    //user-agent
+                    agent: agent,
+                    //is IE
+                    isIE: /trident/.test(agent),
+                    //is Gecko 
+                    isGecko: agent.indexOf("gecko") > 0 && agent.indexOf("like gecko") < 0,
+                    // is webkit
+                    isWebkit: agent.indexOf("webkit") > 0,
+                    isStrict: document.compatMode === "CSS1Compat",
+                    supportSubTitle: function () {
+                        return "track" in document.createElement("track");
+                    },
+                    supportScope: function () {
+                        return "scoped" in document.createElement("style");
+                    },
+                    ieVersion: function () {
+                        var rMsie = /(msie\s|trident.*rv:)([\w.]+)/;
+                        var ma = window.navigator.userAgent.toLowerCase()
+                        var match = rMsie.exec(ma);
+                        try {
+                            return match[2];
+                        } catch (e) {
+                            return IEMode;
+                        }
+                    },
+                    operaVersion: function () {
+                        try {
+                            if (window.opera) {
+                                return agent.match(/opera.([\d.]+)/)[1];
+                            } else if (agent.indexOf("opr") > 0) {
+                                return agent.match(/opr\/([\d.]+)/)[1];
+                            }
+                        } catch (e) {
+                            return 0;
+                        }
+                    }
+                };
+
+            try {
+                System.type = System.isIE ? "IE" :
+                    window.opera || (agent.indexOf("opr") > 0) ? "opera" :
+                        (agent.indexOf("chrome") > 0) ? "chrome" :
+                            window.openDatabase ? "safari" :
+                                (agent.indexOf("firefox") > 0) ? "firefox" :
+                                    'unknow';
+                System.version = (System.type === "IE") ? System.ieVersion() :
+                    (System.type === "firefox") ? agent.match(/firefox\/([\d.]+)/)[1] :
+                        (System.type === "chrome") ? agent.match(/chrome\/([\d.]+)/)[1] :
+                            (System.type === "opera") ? System.operaVersion() :
+                                (System.type === "safari") ? agent.match(/version\/([\d.]+)/)[1] :
+                                    "0";
+                System.shell = function () {
+
+                    if (agent.indexOf("edge") > 0) {
+                        System.version = agent.match(/edge\/([\d.]+)/)[1] || System.version;
+                        return "edge";
+                    }
+                    if (agent.indexOf("maxthon") > 0) {
+                        System.version = agent.match(/maxthon\/([\d.]+)/)[1] || System.version;
+                        return "maxthon";
+                    }
+                    if (agent.indexOf("qqbrowser") > 0) {
+                        System.version = agent.match(/qqbrowser\/([\d.]+)/)[1] || System.version;
+                        return "QQ";
+                    }
+                    if (agent.indexOf("se 2.x") > 0) {
+                        return 'sogou';
+                    }
+                    if (chrome && System.type !== "Opera") {
+                        var external = window.external,
+                            clientInfo = window.clientInformation,
+                            clientLanguage = clientInfo.languages;
+                        if (external && 'LiebaoGetVersion' in external) {
+                            return 'liebao';
+                        }
+                        if (agent.indexOf("bidubrowser") > 0) {
+                            System.version = agent.match(/bidubrowser\/([\d.]+)/)[1] ||
+                                agent.match(/chrome\/([\d.]+)/)[1];
+                            return "baidu";
+                        }
+                        if (System.supportSubTitle() && typeof clientLanguage === "undefined") {
+                            var storeKeyLen = Object.keys(chrome.webstore).length,
+                                v8Locale = "v8Locale" in window;
+                            return storeKeyLen > 1 ? '360 extreme browser' : '360 secure browser';
+                        }
+                        return "chrome";
+                    }
+                    return System.type;
+                };
+
+                System.name = System.shell();
+
+            } catch (e) {
+                
+            }
+            return {
+                client: System
+            };
+
+        })(window);
+        if (Browser.client.name == undefined || Browser.client.name == "") {
+            Browser.client.name = "Unknown";
+            Browser.client.version = "Unknown";
+        } else if (Browser.client.version == undefined) {
+            Browser.client.version = "Unknown";
+        }
+        return Browser;
+    },
+
+    hasClass: function (element, leclass) {
+        var hasClass = false;
+
+        if (element.classList) {
+            hasClass = element.classList.contains(leclass);
+        } else {
+            hasClass = jQuery(element).hasClass(leclass);
+        }
+
+        return hasClass;
+    },
+
+    addClass: function (element, leclass) {
+        if (element.classList) {
+            element.classList.add(leclass);
+        } else {
+            // fallback to jquery for IE < 9
+            jQuery(element).addClass(leclass);
+        }
+    },
+
+    addClasses: function (element, leclasses) {
+        for (var i = 0; i < leclasses.length; i++) {
+            Biz.PureCloud.Utils.addClass(element, leclasses[i]);
+        }
+    },
+
+    removeClass: function (element, leclass) {
+        if (element.classList) {
+            element.classList.remove(leclass);
+        } else {
+            // fallback to jquery for IE < 9
+            jQuery(element).removeClass(leclass);
+        }
+    },
+    removeClasses: function (element, leclasses) {
+        for (var i = 0; i < leclasses.length; i++) {
+            Biz.PureCloud.Utils.removeClass(element, leclasses[i]);
+        }
+    },
+
+    HTMLEncode: function (html) {
+        var temp = document.createElement("div");
+        (temp.textContent !== null) ? (temp.textContent = html) : (temp.innerText = html);
+        var output = temp.innerHTML;
+        temp = null;
+        return output;
+    },
+
+    relplaceHttpUrl: function (msg) {
+        msg = Biz.PureCloud.Utils.trimStr(msg);
+        msg = Biz.PureCloud.Utils.HTMLEncode(msg);
+        var reg = /(((https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/ig;
+        var result = msg.replace(reg, function (item) {
+            var urlLink = item;
+            var isHttp = urlLink.substr(0, 7).toLowerCase() === "http://";
+            var isHttps = false;
+            if (!isHttp) {
+                isHttps = urlLink.substr(0, 8).toLowerCase() === "https://";
+            }
+            return isHttp || isHttps ? "<a href='" + urlLink + "' target='_blank'>" + item + "</a>" : item;
+        });
+        return result;
+    },
+
+    trimStr: function (str) {
+        if (str) {
+            return str.replace(/(^\s*)|(\s*$)/g, "");
+        } else {
+            return '';
+        }
+        
+    },
+
+    sendRequest: function (url, data, method, successCallback, failedCallback) {
+        jQuery.ajax({
+            url: url,
+            cache: false,
+            type: method,
+            //contentType:'application/json',
+            accepts: 'application/json',
+            dataType: "json",
+            async: true,
+            timeout: 15000,
+            data: data,
+            success: function (result) {
+                successCallback && successCallback(result);
+            },
+            error: function (err) {
+                var responseData = { err: err, requestData: data };
+                failedCallback && failedCallback(responseData);
+            }
+        });
+    },
+
+    isPC: function () {
+        var userAgentInfo = navigator.userAgent;
+        var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"); 
+        var flag = true;
+        for (var v = 0; v < Agents.length; v++) {
+            if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+        }
+        return flag;  
+    },
+
+    sendToAdobeOnClick: function (topic, reason) {
+        var eVar35Value = reason ? topic + '|' + reason : topic;
+        var name = 'live chat login';
+        var sendTrackingValue = {
+            'events': 'event55',
+            'eVar35': eVar35Value
+        };
+        if (!Biz.PureCloud.Utils.isPC()) {
+            sendTrackingValue['prop20'] = 'mbl';
+            sendTrackingValue['eVar42'] = 'mbl';
+        }
+        // for usa && can
+        if (Biz && Biz.Common && Biz.Common.SiteCatalyst && Biz.Common.SiteCatalyst.sendForOnClick) {
+            Biz.Common.SiteCatalyst.sendForOnClick(sendTrackingValue, name);
+            return;
+        }
+
+        // for b2b
+        if (typeof (s) != 'undefined') {
+            var regionCode = "USB";
+            var currencyCode = "USD";
+            sendTrackingValue.prop12 = sendTrackingValue.eVar51 = regionCode;
+            sendTrackingValue.currencyCode = sendTrackingValue.prop13 = sendTrackingValue.eVar52 = currencyCode;
+            var trackVars = [];
+            for (prop in sendTrackingValue) {
+                trackVars.push(prop);
+                if (prop == 'events') {
+                    s.linkTrackEvents = s.events = sendTrackingValue[prop];
+                } else {
+                    s[prop] = sendTrackingValue[prop];
+                }
+            }
+            s.linkTrackVars = trackVars.join(',');
+            s.tl(this, 'o', name);
+        }
+    }
+};

@@ -1,0 +1,75 @@
+(function() {
+  // Insert a wrapper for HL to target placement. -Goldie Young 11/29/2016
+  jQuery("#homepage2016-section3 .page-section-inner .row .row-body .row-body-inner").append("<div id='hl_1_container'></div>");
+  var p = document.location.protocol;
+  if (p == "http:" || p == "https:") {
+    var m = document.createElement('script');
+    m.type = 'text/javascript';
+    m.src = (p == "https:" ? "https://" : "http://") + "www.hlserve.com/Delivery/ClientPaths/Library/hook.js?apiKey=6ef21daa-7dac-4e51-9d4d-906c52cc3bc0&channel=web";
+    m.async = true;
+    var scrip = document.getElementsByTagName('head')[0].childNodes[0];
+    scrip.parentNode.insertBefore(m, scrip);
+    m.onload = function() {
+      var b = utag_data;
+      // only for usa & usd
+      if (b.site_region != "USA" || b.site_currency != "USD") {
+        return;
+      }
+      if (HLLibrary != undefined) {
+        HLLibrary.newRequest()
+        .setTaxonomy("homepage")
+        .setModule("HomepageDesktop")
+        .setProperty("cUserId", b.user_name)
+        .setProperty("hlPageType", "H")
+        .submit("hl_1");
+      }
+      // Adobe impression tracking
+      if(typeof s != 'undefined') {
+        s.linkTrackEvents='';
+        s.linkTrackVars='prop26,eVar50';
+        s.prop26='-_--_--_--_--_-DYMX-ABT-18008_Home_STATIC-_-Pers_MNT_Imp-_--_-'+new Date().toISOString()+'-_-';
+        s.eVar50='-_--_--_--_--_-DYMX-ABT-18008_Home_STATIC-_-Pers_MNT_Imp-_--_-'+new Date().toISOString()+'-_-';
+        s.tl(this,'o','Target Banner impression monetate');
+      }
+      setTimeout(function() {
+        jQuery("#hl_1_container .hl-product a").click(function() {
+          // Adobe click tracking
+          if(typeof s != 'undefined') {
+            s.linkTrackEvents='';
+            s.linkTrackVars='prop26,eVar50';
+            s.prop26='-_--_--_--_--_-DYMX-ABT-18008_Home_STATIC-_-Pers_MNT-_--_-'+new Date().toISOString()+'-_-';
+            s.eVar50='-_--_--_--_--_-DYMX-ABT-18008_Home_STATIC-_-Pers_MNT-_--_-'+new Date().toISOString()+'-_-';
+            //s.tl(this,'o','Target Banner impression monetate');
+          }
+        });
+      }, 1000);
+
+      // properties [OLD]
+      //HLLibrary.setProperty("clientId", "132");
+      //HLLibrary.setProperty("pageType", b.page_type);
+      //HLLibrary.setProperty("pUserId", b.user_nvtc);
+      //HLLibrary.setProperty("cUserId", b.user_name);
+      //if (typeof b.hl_seller_id_list === 'undefined') {
+      // single item
+      //HLLibrary.setProperty("prodid", b.product_web_id);
+      //HLLibrary.setProperty("sellerid", '0');
+      //HLLibrary.setProperty("prodp", b.product_sale_price);
+      //HLLibrary.setProperty("qty", b.product_instock);
+      //} else {
+      // group item
+      //HLLibrary.setProperty("pgid", b.parent_item);
+      //HLLibrary.setProperty("sellerid", b.hl_seller_id_list.replace('Newegg', '0'));
+      //HLLibrary.setProperty("prodid", b.hl_prod_id_list);
+      //HLLibrary.setProperty("prodp", b.hl_prod_p_list);
+      //HLLibrary.setProperty("qty", b.hl_prod_qty_list);
+      //		}
+
+      // submit data
+      //HLLibrary.submit();
+
+      // logging.. to be removed.
+      //console.log('Hooklogic event submitted.');
+      //console.log(HLLibrary._o);
+    }
+  }
+}());

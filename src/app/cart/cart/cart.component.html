@@ -1,0 +1,122 @@
+<div class="container">
+    <br><br><br>
+    <div class="row" >
+        <div style="width: 80%;height: 50px;background-color:#343a40">
+            <h1 style="color:white;font:bold">{{numberOfItems}} Item(s) in your shopping cart: ${{totalPrice}}</h1>
+            </div>
+    </div>
+   
+    <br>
+
+    <div class="row">
+        <div style="width: 80%;height: 50px;background-color:#ccc">
+            <h1 style="color:black;font:bold"> Computer Store International Shipping Service</h1>
+            </div>
+    </div>
+   <!-- loop over items here -->
+    <div class="row">
+       
+        
+       
+        <div style="width: 80%;background-color:white;border: solid 1px;height: 200px;" *ngFor="let product of productNoDuplicate;let j=index"  >
+            <div  style="height: 150px;margin-top: 15px;" class="row">
+             <div class="col-1">
+                 <img width="100px" height="100px" src="{{product.imgPath}}">
+             </div>
+             <div style="margin-left: 20px;"  class="col-5">
+                <h3 style="color:black;font:bold; text-decoration: underline;">{{product.description}}</h3>
+            </div>
+            <div class="col-3">
+                    
+                    <input  [ngModel]="jj" (ngModelChange)="valuechange($event)"  type="number" min="1"placeholder="{{amount[j]}}">
+                    
+               <a style="text-underline-position: below;" (click)=setAmount(j) >Update</a>
+            </div>
+            <div class="col-2">
+               <h3  >Unit:{{product.price}}$</h3> <h3  >Total:{{product.price*amount[j]}}$</h3>
+            </div>
+            <a style="color:purple" (click)="deleteItem(j)"><i class="fas fa-trash-alt fa-2x"></i></a>
+            <button style="width: 100px;height: 40px; border: solid 1px #d9d9d9;color:black;background-color: white;border-radius: 10%;margin-left: 300px;" >Move to wish List</button>
+            <button style="width: 100px;height: 40px; border: solid 1px #d9d9d9;color:black;background-color: white;border-radius: 10%;margin-left: 20px;"  >Remove</button>
+            
+        </div>
+         
+            </div>
+
+            
+
+
+    </div>
+   
+    <div class="row">
+        <div style="width: 80%;height: 50px;background-color:white;border: 1px solid black">
+            <h1 style="color:black;font:bold">Price:{{totalPrice}}$</h1>
+            </div>
+    </div>
+    <div class="row">
+        <div style="width: 80%;height: 50px;background-color:white;border: 1px solid black">
+            <h1 style="color:black;font:bold"> Vat:{{vat}}$</h1>
+            </div>
+    </div>
+    <div class="row">
+        <div style="width: 80%;height: 50px;background-color:white;border: 1px solid black">
+            <h1 style="color:black;font:bold;"> Shipping:100$</h1>
+            </div>
+    </div>
+    <div class="row">
+        <div style="width: 80%;height: 50px;background-color:white;border: 1px solid black">
+            <h1 style="color:black;font:bold">Price:{{totalPrice+vat+100}}$</h1>
+            </div>
+    </div>
+    
+    <!-- <div class="row">
+        <div style="width: 80%;height: 350px;background-color:#f3f3f3;border: 1px solid black">
+            <h1 style="color:black;font:bold;border: 1px solid black"> Shipping to :Israel </h1>
+           
+            <select style="width: 300px;" class="selectpicker">
+                <option>Israel</option>
+                <option>Israel</option>
+                <option>Israel</option>
+              </select>
+              <br>
+            <p>We are currently experiencing increased order volume and we are committed to processing all Newegg orders within our normal 1-2 business day processing time. Our shipping carriers continue to operate normally where permitted. Due to global Covid-19 restrictions and customs delays, some shipments may encounter longer than normal delivery times.</p>
+            </div>
+    </div> -->
+    <div class="container">
+
+        
+        <div  style="height: 150px;" class="row">
+            <div class="col-4"></div>
+            <div style="margin-top: 15px;" class="col-4">
+                <div style="background-color: #98c6ff;color: black;border: #849dc2 1px solid;margin-left: -200px;height: 50px;width: 60%;border-radius: 5px;">
+    
+                    <a  href="/home">
+                        
+                        <h2 style="margin-top: 7px;color: black;"><i style="margin-left: 20px;" class="fas fa-caret-left"></i>Continue Shopping</h2>
+                        </a>
+                </div>
+              
+              
+               
+                        
+            </div>
+            <div style="margin-top: 15px;" class="col-4">
+                <div style="background-color: #ffa33b;color: black;border: #cc6600 1px solid;margin-left: -200px;height: 50px;width: 60%;border-radius: 5px;">
+                    <a  href="/address">
+                        <h2  style="margin-top: 7px;margin-left: 15px;color: black;"> Secure Check Out<i class="fas fa-caret-right"></i></h2>
+                       
+            
+            
+                         </a>
+                
+                </div>
+                    
+             </div>
+        </div>
+
+
+
+    </div>
+   
+    
+</div>

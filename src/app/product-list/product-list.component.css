@@ -1,0 +1,31 @@
+:host {
+  /*display: block;*/
+  margin-top: 1rem;
+
+}
+.info-text{
+  text-align: center;
+}
+
+.inputFiled{
+
+  margin-top: 2rem;
+  width: 80%;
+  margin: auto;
+}
+p{
+  font-weight: bold;
+  color: mediumvioletred;
+}
+mat-spinner{
+  margin:auto;
+}
+
+.productImage{
+  width: 100%;
+
+}
+.productImage img{
+  width: 25%;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+}

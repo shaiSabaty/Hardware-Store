@@ -1,0 +1,1 @@
+var afk = Biz.Search.AutoFilledKeywordsNew;if(afk){afk.getRecentQuery('10','True','Recent Searches')}

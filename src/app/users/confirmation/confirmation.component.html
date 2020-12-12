@@ -1,0 +1,126 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8" >
+   <div style="margin-top: 50px;" class="row">
+                    <div  style="border: solid 1px black;height: 50px;background-color: #f3f3f3;" class="col-1">
+                        <a  href="/cart"><i style="color: black;margin-top: 7px;"  class="fas fa-shopping-cart fa-2x" ></i></a>
+                    </div>
+                    <div  style="border: solid 1px black;height: 50px;background-color: #f3f3f3;" class="col-3"><h1 class="itemMenu" style="margin-top: 7px;"> <a  style="color: black;text-decoration: none;" href="#">User Details</a></h1></div>
+                    <div style="border: solid 1px black;height: 50px;background-color: #f3f3f3;"class="col-3"><h1 class="itemMenu" style="margin-top: 7px;">Payment</h1></div>
+                    <div style="border: solid 1px black;height: 50px;background-color: #455570;color: white" class="col-5"><h1 class="itemMenu" style="margin-top: 7px;">Confirmation</h1></div>
+                     <br>
+                     <h1 style="margin-top: 10px;">Payment Details:</h1>
+                </div>
+
+
+
+            <div style="border: solid 1px #ced4da;margin-top: 25px;align-items: center;text-align: center;" *ngIf="paidFor">
+                <h2>Cart Details:</h2>
+                <div class="row">
+                    <div class="col-6"> <h2>Item Name:</h2></div>
+                    <div class="col-3">  <h2 style="margin-left: -20px;">Price:</h2></div>
+                    <div class="col-3">   <h2 style="margin-left: -20px;">Amount:</h2></div>
+                </div>
+                <div   class="row" *ngFor="let item of arrName; let i = index" [attr.data-index]="i">
+                  
+                    <div  class="col-6" >
+                       
+                        <h3 > {{(i+1)}}. {{item.name}}</h3></div>
+                    <div class="col-3" >
+                      
+                        <h3 >{{item.price}}$</h3></div>
+                    <div class="col-3" > 
+                        <h3 >X{{item.amount.number}}</h3></div>
+                </div>
+            
+             <!-- <h3 style="position: absolute;top: 0;right: 200px;" *ngFor="let price of prices">{{price}}</h3> -->
+             <!-- <h3 *ngFor="let amount of amount">{{amount.number}}</h3> -->
+            
+            
+            </div>
+            
+
+
+
+
+
+
+
+        </div>
+        <div class="col-2"></div>
+
+    </div>
+
+
+
+
+     
+    
+</div>
+<div style="margin-bottom: 22px;" class="container-fluid">
+
+    <div class="row">
+        <div class="col-2"></div>
+
+        <div class="col-4" >
+            <div style="border: solid 1px #ced4da;margin-top: 25px;text-align: center;height: 320px;" *ngIf="paidFor">
+                <h2 style="text-align: center">Shipping Details:</h2>
+                <div >
+                  
+                   <h3>First Name :{{firstName}}   <a href="/address"><i style="float: right;color: black;margin-top: -50px;" ></i></a></h3>
+                     <h3>Last Name:{{lastName}}<i style="float: right;margin-right: 8px;margin-top: -50px;" ></i>
+ 
+                     </h3>
+                     <h3>City:{{city}}</h3>
+                     <h3>country:{{country}}</h3>
+                     <h3>Address:{{fullAddress}}</h3>
+                     <h3>phone Number:{{phoneNumber}} </h3>
+                    
+                    
+ 
+ 
+                   </div>
+            
+             <!-- <h3 style="position: absolute;top: 0;right: 200px;" *ngFor="let price of prices">{{price}}</h3> -->
+             <!-- <h3 *ngFor="let amount of amount">{{amount.number}}</h3> -->
+            
+            
+            </div>
+        
+        
+        </div>
+        <div class="col-4" >
+            <div style="border: solid 1px #ced4da;margin-top: 25px;align-items: center;text-align: center;height: 320px;" *ngIf="paidFor">
+                <h2>Total Price:</h2>
+                <h3>Status:Paid</h3>
+                <h3>Shipping Status:Delivered</h3>
+                <h3>Price:{{price}}$</h3>
+                <h3>Vat:{{vat}}$</h3>
+                <h3>Total Price Include Price:{{totalPrice}}$</h3>
+
+             <!-- <h3 style="position: absolute;top: 0;right: 200px;" *ngFor="let price of prices">{{price}}</h3> -->
+             <!-- <h3 *ngFor="let amount of amount">{{amount.number}}</h3> -->
+            
+            
+            </div>
+            
+    
+    
+    
+    
+    
+    
+    
+        </div>
+        <div class="col-2"></div>
+
+    
+    </div>
+
+
+
+
+
+</div>
+

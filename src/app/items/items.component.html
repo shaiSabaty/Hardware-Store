@@ -1,0 +1,63 @@
+
+
+ 
+  
+
+
+<div *ngFor="let product of products "  style="height: 600px; " class="d-inline-flex p-2" >
+
+
+  <div class="card" style="width: 18rem;">
+<!--    <img src="{{gpu.imgPathCompanyLogo}}" >-->
+    <img class="card-img-top" src="{{product.imgPath}}" >
+
+    <img style="margin-top: 10px" width="80px" height="28px" src="{{product.imgPathCompanyLogo}}">
+
+
+
+    
+
+
+
+    <div class="card-body">
+      <h5 class="card-title">{{product.name}}</h5>
+
+      <div style="display: inline;margin-left: 5px" *ngFor="let number of [0,1,2,3,4] "  >
+        <p style="display: inline" *ngIf="number<product.numOfStars">
+          <i style="color: #fbb535" class="fa fa-star" aria-hidden="true"></i></p>
+      </div >
+
+
+      <p class="card-text">{{product.description}}</p>
+      <h5 class="card-title">{{product.price}}</h5>
+      <a style="margin-bottom: 10px;border: black 1px solid;background-color:#ffa33a;color: black;"  href="/item/{{product._id}}" class="btn btn-primary">Show Item</a>
+     <a style="margin-bottom: 10px;border: black 1px solid;background-color:#ffa33a;margin-left: 20px;" (click)=" addToCart(product._id)" href="javascript:void(0)"  head class="btn">Add To Cart</a>
+    </div>
+
+  </div>
+</div>
+
+
+
+<div  *ngFor="let product of products " [hidden] = "!isShow"   style="border: black 1px solid; height: 700px; width: 800px;position: fixed;float: right;top: 0;background-color: white;margin-top: 100px;">
+  <h1>ITEM: {{productName}}  HAS BEEN ADDED TO CART.
+  </h1>
+  <div class="row">
+    <div class="col-2">
+      <img style="height: 150px;width: 150px;" src="{{imagePath}}" >
+    </div>
+    <div class="col-7">
+      <h3 class="card-text">{{des}}</h3>
+    </div>
+    <div class="col-2">
+      <h5 class="card-title">{{price}}$</h5>
+    </div>
+  </div>
+  
+  <a  style="margin-bottom: 10px;border: black 1px solid;background-color:white;color: black;margin-top:350px;" (click)=" toggleDisplay(product._id)"  href="javascript:void(0)" class="btn btn-primary">Continue Shopping</a>
+  <a style="margin-bottom: 10px;border: black 1px solid;background-color:#ffa33a;margin-left: 20px;margin-top: 350px;" href="/cart"    class="btn">View Cart & Check Out</a>
+ <p>art Subtotal (3 Items): ₪4,457.97</p>
+
+
+</div>
+

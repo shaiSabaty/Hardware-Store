@@ -1,0 +1,45 @@
+<div style="margin-top: 10px"></div>
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<mat-accordion multi="true" *ngIf="users.length>0 && !isLoading">
+  <div style="margin-top: 10px" ></div>
+  <mat-expansion-panel class="inputFiled" *ngFor="let user of users" >
+
+      <mat-expansion-panel-header>
+
+        {{user.email}}
+
+      </mat-expansion-panel-header>
+
+    
+    <p>user Name:</p>
+    {{user.userName}}
+    <br><p>password:</p>
+    {{user.password}}
+    <br><p>first Name:</p>
+    {{user.firstName}}
+   
+    <br><p>Last Name:</p>
+    {{user.lastName}}
+    <br><p>phoneNumber:</p>
+    {{user.phoneNumber}}
+    
+    <br><p>_id:</p>
+    {{user._id}}
+     <!-- <div class="userImage">
+   <img [src]="gpu.imgPath" [alt]="gpu.name">
+
+     </div> -->
+    <!-- <p>imgPath:</p>
+    {{gpu.imgPath}} -->
+    <mat-action-row >
+      <a  *ngIf="checkConnections()" [routerLink]="['/user/edit',user._id]" (click)="updateUser(user._id)" mat-button color="primary">Edit</a>
+
+    
+      <button *ngIf="checkConnections()"  (click)="deleteUser(user._id)" color="warn" mat-button>Delete</button>
+    </mat-action-row>
+  </mat-expansion-panel>
+
+</mat-accordion>
+
+<p  class="mat-body-strong info-text" *ngIf="users.length <= 0 && !isLoading">No Users Added Yet!</p>
+<div style="margin-top: 500px">.</div>

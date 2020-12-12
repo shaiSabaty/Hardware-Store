@@ -1,0 +1,141 @@
+
+<mat-card>
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+<form [formGroup]="form" (submit)="onAddProduct()"  *ngIf="!isLoading" >
+
+  <!-- <mat-form-field><br>
+    <option placeholder="Enter name:" matInput type="text"  formControlName="categoryName"  >
+    <mat-error style="color: blueviolet" *ngIf="form.get('categoryName').invalid">Please Enter a Product name</mat-error>
+  </mat-form-field><br> -->
+
+  <!-- <mat-form-field>
+    <mat-select [placeholder]="receivedLabel" [(ngModel)]="value" (blur)="onBlur()" class="select-country-main">
+      <ng-template ngFor let-country [ngForOf]="countries" [ngForTrackBy]="trackByCountryId">
+        <mat-option *ngIf="!isExcluded(country)" [value]="country">
+          <country-flag [country]="country"></country-flag>
+        </mat-option>
+      </ng-template>
+    </mat-select>
+  </mat-form-field> -->
+
+
+  <!-- <mat-form-field appearance="fill">
+    <mat-label>Select an option</mat-label>
+    <mat-select [(value)]="selected">
+      <mat-option *ngFor="let item of arrayCategory" value="{{item.name}}"></mat-option> -->
+      <!-- <mat-option value="{{item.name}}"></mat-option> -->
+     
+    <!-- </mat-select>
+  </mat-form-field> -->
+  
+
+  <!-- <select  placeholder="select" >
+    <option *ngFor="let category of arrayCategory" [ngValue]="category.name"></option>
+</select> -->
+<!-- <option *ngFor="let person of people" [value]="person.person_name"></option> -->
+
+
+
+  <!-- <mat-label>Pick a Category</mat-label> -->
+
+  <mat-form-field><br>
+  <mat-select  [(value)]="selected" (selectionChange)="onSelect()" matNativeControl  placeholder="Pick a Category" formControlName="category"  >
+    
+    <mat-option  *ngFor="let category of arrTemp" value={{category}}  >{{category}}</mat-option>
+    <p>You selected:</p>
+  </mat-select>
+</mat-form-field><br>
+
+  <mat-form-field><br>
+    <input placeholder="Enter Key:" matInput type="text"  formControlName="key"  />
+    <mat-error style="color: blueviolet" *ngIf="form.get('key').invalid">Please Enter a Key</mat-error>
+  </mat-form-field><br>
+  
+
+
+    <mat-form-field><br>
+      <input placeholder="Enter name:" matInput type="text"  formControlName="name"  />
+      <mat-error style="color: blueviolet" *ngIf="form.get('name').invalid">Please Enter a Product name</mat-error>
+    </mat-form-field><br>
+    
+  <mat-form-field  ><br>
+      <input placeholder="Enter Manufacturer:" matInput type="text"  formControlName="manufacturer"  />
+      <mat-error style="color: blueviolet" *ngIf="form.get('manufacturer').invalid">Please Enter a Product Manufacturer </mat-error>
+    </mat-form-field><br>
+ 
+
+    
+    <!-- <mat-form-field  ><br>
+      <input placeholder="Enter category:" matInput type="text"  formControlName="category"  />
+      <mat-error style="color: blueviolet" *ngIf="form.get('category').invalid">Please Pick a category</mat-error>
+      
+    </mat-form-field><br> -->
+  
+  
+  
+  
+    <mat-form-field  ><br>
+
+    
+
+
+    
+
+    <input placeholder="Enter company:" matInput type="text"    formControlName="company"  />
+    <mat-error style="color: blueviolet" *ngIf="form.get('company').invalid" >Please Enter a Product company</mat-error>
+  </mat-form-field  ><br>
+  <mat-form-field  ><br>
+    <input placeholder="Enter price:"  matInput type="text"   formControlName="price"/>
+    <mat-error style="color: blueviolet" *ngIf="form.get('price').invalid" >Please Enter a Product price </mat-error>
+  </mat-form-field  ><br>
+    <mat-form-field><br>
+    <input placeholder="Enter imgPath:" style="visibility: false;"  matInput type="text"      formControlName="imgPath" />
+    
+    <div color="primary" style="float: right;">
+      <button (click)="filePicker.click()" class="btn btn-success" mat-stroked-button type="button">Pick Image</button>
+     
+    </div>
+    <input type="file" #filePicker (change)="onImagePicker($event)" style="float: right;">
+    <div class="image-preview" *ngIf="imagePreview !=='' && imagePreview && form.get('image').valid">
+      <img [src]="imagePreview" [alt]="form.value.name">
+    </div>
+      <mat-error style="color: blueviolet" *ngIf="form.get('imgPath').invalid" >Please Enter a Product imgPath</mat-error>
+  </mat-form-field  ><br>
+  
+  <mat-form-field><br>
+    <input placeholder="Enter description:"  matInput type="text" formControlName="description"  />
+    <mat-error style="color: blueviolet" *ngIf="form.get('description').invalid" >Please Enter a Product description</mat-error>
+  </mat-form-field><br>
+  <mat-form-field><br>
+    <input placeholder="Enter numOfStars:"  matInput type="number"     formControlName="numOfStars" />
+   
+    <mat-error style="color: blueviolet" *ngIf="form.get('numOfStars').invalid" >Please Enter a Product numOfStars</mat-error>
+  </mat-form-field><br>
+  <mat-form-field  ><br>
+
+    <input placeholder="Enter imgPathCompanyLogo:"  matInput type="text"     formControlName="imgPathCompanyLogo" />
+    <div  style="display: inline;float: right;">
+      <button class="btn btn-success"  mat-stroked-button type="button">Pick Image</button>
+    </div>
+    <mat-error style="color: blueviolet"  *ngIf="form.get('imgPathCompanyLogo').invalid" >Please Enter a Product imgPathCompanyLogo</mat-error>
+  </mat-form-field><br><br>
+
+
+
+
+  <!-- <mat-form-field >
+
+    <textarea style="margin-top: 10px"  matInput ngModel  name="content" rows="4"></textarea>
+
+
+  </mat-form-field> -->
+  <button mat-raised-button
+          color="primary"
+          type="submit" >Save Product</button>
+
+        
+
+</form>
+
+</mat-card>
+

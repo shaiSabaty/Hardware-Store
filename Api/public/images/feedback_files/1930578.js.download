@@ -1,0 +1,36 @@
+var tmntag = tmntag || {};
+tmntag.cmd = tmntag.cmd || [];
+(function() {
+	var tmnhead = document.createElement('script');
+	tmnhead.async = true;
+	tmnhead.type = 'text/javascript';
+	tmnhead.src = ('https:' == document.location.protocol ? 'https:' : 'http:') + '//ads.servebom.com/tmnhead.js';
+	var node = document.getElementsByTagName('script')[0];
+	node.parentNode.insertBefore(tmnhead, node);
+})();
+tmntag.cmd.push(function() {
+	tmntag.placement(2942);
+	tmntag.start();
+});
+tmntag.cmd.push(function() {
+	tmntag.adTag('purch_Y_R_0_1', false);
+});
+
+if(typeof s != 'undefined') {
+	s.linkTrackEvents='';
+	s.linkTrackVars='prop26,eVar50';
+	s.prop26='-_--_--_--_--_-DYMX-ADS-16001E_300_HomePage-_-Pers_MNT_Imp-_--_-'+new Date().toISOString()+'-_-';
+	s.eVar50='-_--_--_--_--_-DYMX-ADS-16001E_300_HomePage-_-Pers_MNT_Imp-_--_-'+new Date().toISOString()+'-_-';
+	s.tl(this,'o','Target Banner impression monetate');
+}
+
+
+jQuery('#purch_Y_R_0_1').click(function(){
+	if(typeof s != 'undefined') {
+		s.linkTrackEvents='';
+		s.linkTrackVars='prop26,eVar50';
+		s.prop26='-_--_--_--_--_-DYMX-ADS-16001E_300_HomePage-_-Pers_MNT-_--_-'+new Date().toISOString()+'-_-';
+		s.eVar50='-_--_--_--_--_-DYMX-ADS-16001E_300_HomePage-_-Pers_MNT-_--_-'+new Date().toISOString()+'-_-';
+		s.tl(this,'o','Target Banner click monetate'); 
+	}
+});

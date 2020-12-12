@@ -1,0 +1,49 @@
+
+
+<mat-card>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form  (submit)="onContact(contactForm)" *ngIf="!isLoading" #contactForm="ngForm" >
+  
+  
+      <mat-form-field  ><br>
+        <input placeholder="Enter email:" name="email" ngModel matInput type="email" #emailInput="ngModel" value={{email}}  required email  />
+        
+      </mat-form-field><br>
+ 
+      <mat-form-field  ><br>
+        <input name="phoneNumber" value={{phoneNumber}}  ngModel placeholder="Enter phone Number:" matInput type="text" required #phoneNumberInput="ngModel"  />
+      
+      </mat-form-field><br>
+
+      <mat-form-field  ><br>
+        <input name="firstName" value={{firstName}}  ngModel placeholder="Enter firstName:" matInput type="text" required #firstNameInput="ngModel"  />
+        
+      </mat-form-field><br>
+
+      <mat-form-field  ><br>
+        <input name="lastName" value={{lastName}}  ngModel placeholder="Enter lastName:" matInput type="text" required #lastNameInput="ngModel"  />
+       
+      </mat-form-field><br>
+
+      <mat-form-field  ><br>
+        <textarea  name="message" rows="10" ngModel placeholder="Enter message here:" matInput type="text" required #messageInput="ngModel" ></textarea>
+        <mat-error style="color: blueviolet" *ngIf="messageInput.invalid" >Please Enter  message Here</mat-error>
+      </mat-form-field><br>
+  
+    <button mat-raised-button
+            color="primary"
+            type="submit" *ngIf="!isLoading"  >Contact Us</button>
+  
+            <mat-spinner *ngIf="isLoading"></mat-spinner>
+            
+            <!-- <div *ngIf="check()" class="alert alert-danger">
+              <strong>Danger!</strong> Indicates a dangerous or potentially negative action.
+            </div> -->
+
+           
+           
+  </form>
+  
+  </mat-card>
+  
+ 

@@ -1,0 +1,23 @@
+mat-card{
+    width: 80%;
+    margin: auto;
+  
+  }
+  
+  mat-form-field,
+  textarea{
+    width: 100%;
+  }
+  
+  main{
+    margin-top: 1rem;
+    width: 80%;
+    margin: auto;
+  }
+  .inputTitle{
+    margin-top: 5rem;
+    margin-top: 1rem;
+    width: 80%;
+    margin: auto;
+  }
+  

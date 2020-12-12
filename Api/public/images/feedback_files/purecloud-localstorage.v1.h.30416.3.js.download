@@ -1,0 +1,66 @@
+﻿usingNamespace("Biz.PureCloud")["LocalStorage"] = {
+    CHAT_STATE: "CHAT_STATE",
+    CHAT_USER_NAME: "CHAT_USER_NAME",
+    CHAT_EMAIL: "CHAT_EMAIL",
+    CHAT_WINDOW_IS_OPEN: "CHAT_WINDOW_IS_OPEN",
+    CHAT_BASIC_INFO: "CHAT_BASIC_INFO",
+    CHAT_INFO: 'CHAT_INFO',
+    CHAT_START_TIME: 'CHAT_START_TIME',
+    CHAT_QUEUE_ID: 'CHAT_QUEUE_ID',
+    CHAT_CONVERSATION_ID: 'conversationid',
+    CHAT_SEND_TRANSCRIPT_EMAIL: 'transcript_email_checked',
+    CHAT_CONVERSATION_TOKEN: 'jwt',
+    CHAT_CUSTOMERNUMBER: 'customerNumber',
+    CHAT_SOURE: 'soure',
+    CHAT_CUSTOMER_MEMBER_ID: 'customer_member_id',
+    CHAT_CONVERSATION_WEBSOCKETURL: 'websocket_url',
+    CHAT_AGENT_ID: 'agentid',
+    CHAT_AGENT_NAME: 'agentName',
+    CHAT_LANGUAGE: 'language',
+    CHAT_MSG_LIST: 'msg_list',
+    CHAT_HAS_SUBMIT_FEEDBACK: 'has_submit_feedback',
+
+    getData: function (key) {
+        var storageKey = Biz.PureCloud.LocalStorage.CHAT_INFO;
+        var dataStr = localStorage.getItem(storageKey);
+        if (dataStr) {
+            var dataJson = JSON.parse(dataStr);
+            if (!key) {
+                return dataJson;
+            }
+            var dataMap = Immutable.Map(dataJson);
+            return dataMap.get(key);
+        }
+        return null;
+    },
+
+    setData: function (key, value) {
+        var storageKey = Biz.PureCloud.LocalStorage.CHAT_INFO;
+        var dataStr = localStorage.getItem(storageKey);
+        if (dataStr) {
+            var dataJson = JSON.parse(dataStr);
+            var dataMap = Immutable.Map(dataJson);
+            dataMap = dataMap.set(key, value);
+            localStorage.setItem(storageKey, JSON.stringify(dataMap));
+        } else {
+            var data = {};
+            var dataMap = Immutable.Map(data);
+            dataMap = dataMap.set(key, value);
+            localStorage.setItem(storageKey, JSON.stringify(dataMap));
+        }
+    },
+    clearItem: function (key) {
+        var storageKey = Biz.PureCloud.LocalStorage.CHAT_INFO;
+        var dataStr = localStorage.getItem(storageKey);
+        if (dataStr) {
+            let dataJson = JSON.parse(dataStr);
+            let dataMap = Immutable.Map(dataJson);
+            dataMap = dataMap.delete(key);
+            localStorage.setItem(storageKey, JSON.stringify(dataMap));
+        }
+    },
+    clearKey: function () {
+        var storageKey = Biz.PureCloud.LocalStorage.CHAT_INFO;
+        localStorage.removeItem(storageKey);
+    }
+};

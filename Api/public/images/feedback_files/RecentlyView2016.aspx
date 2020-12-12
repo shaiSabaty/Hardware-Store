@@ -1,0 +1,1 @@
+NEG.run(function(require) { var pData= "";var recentlyView = require('Biz.Common.RecentlyView2016')();recentlyView.renderData(pData);recentlyView.initSwiper();Biz.Common.CommonPop.init();var popup = require('Biz.Common.Popup');popup("[data-neg-popid='mapPricePopUp']", { icon: 'info' });});

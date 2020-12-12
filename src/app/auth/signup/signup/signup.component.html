@@ -1,0 +1,119 @@
+<!-- <p>signup works!</p>
+
+
+<mat-card>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+  <form  (submit)="onSignup(signupForm)" #signupForm="ngForm"  *ngIf="!isLoading" >
+  
+  
+      <mat-form-field  ><br>
+        <input placeholder="Enter email:" ngModel matInput name="email" type="email" #emailInput="ngModel" required email [(ngModel)]="email"/>
+        <mat-error style="color: blueviolet" *ngIf="emailInput.invalid" >Please Enter a valid email</mat-error>
+      </mat-form-field><br>
+      <mat-form-field  ><br>
+        <input name="password" placeholder="Enter Password:" ngModel matInput type="password" #passwordInput="ngModel" required autocomplete="new-password" [(ngModel)]="password"/>
+        <mat-error style="color: blueviolet" *ngIf="passwordInput.invalid">Please Enter a valid password</mat-error>
+      </mat-form-field><br>
+      <mat-form-field  ><br>
+        <input name="userName" placeholder="Enter userName:" ngModel matInput type="text" #userNameInput="ngModel" required autocomplete="off" [(ngModel)]="userName"/>
+        <mat-error style="color: blueviolet" *ngIf="userNameInput.invalid">Please Enter a valid password</mat-error>
+      </mat-form-field><br>
+      <mat-form-field  ><br>
+        <input placeholder="Enter first Name:" ngModel matInput name="firstName" type="text" #firstNameInput="ngModel" required [(ngModel)]="firstName"  />
+        <mat-error style="color: blueviolet" *ngIf="firstNameInput.invalid" >Please Enter a valid firstName</mat-error>
+      </mat-form-field><br>
+      <mat-form-field  ><br>
+        <input placeholder="Enter last Name:" ngModel matInput name="lastName" type="text" #lastNameInput="ngModel" required [(ngModel)]="lastName" />
+        <mat-error style="color: blueviolet" *ngIf="lastNameInput.invalid" >Please Enter a valid lastName</mat-error>
+      </mat-form-field><br>
+      
+      <mat-form-field  ><br>
+        <input placeholder="Enter phone Number:" ngModel matInput name="phoneNumber" type="text" #phoneNumberInput="ngModel" required lastName  [(ngModel)]="phoneNumber" />
+        <mat-error style="color: blueviolet" *ngIf="phoneNumberInput.invalid" >Please Enter a valid phone Number</mat-error>
+      </mat-form-field><br>
+
+    <button mat-raised-button
+            color="primary"
+            type="submit" *ngIf="!isLoading" >Sign up</button>
+  
+          <mat-spinner *ngIf="isLoading"></mat-spinner>
+  
+  </form>
+  
+  </mat-card> -->
+
+
+
+
+
+
+<mat-card>
+  <mat-spinner *ngIf="isLoading"></mat-spinner>
+<form [formGroup]="form"  (submit)="onSignup()"  *ngIf="!isLoading" >
+
+
+    <mat-form-field  ><br>
+      <input placeholder="Enter email:" matInput type="text"  formControlName="email"  />
+      <mat-error style="color: blueviolet" *ngIf="form.get('email').invalid">Please Enter email</mat-error>
+    </mat-form-field><br>
+  <mat-form-field *ngIf="flag" ><br>
+    <input placeholder="Enter password:" matInput type="text"    formControlName="password"  />
+    <mat-error style="color: blueviolet" *ngIf="form.get('password').invalid" >Please Enter password</mat-error>
+  </mat-form-field  ><br>
+  <mat-form-field  ><br>
+    <input placeholder="Enter firstName:"  matInput type="text"   formControlName="firstName"/>
+    <mat-error style="color: blueviolet" *ngIf="form.get('firstName').invalid" >Please Enter firstName </mat-error>
+  </mat-form-field  ><br>
+
+  <mat-form-field  ><br>
+    <input placeholder="Enter phoneNumber:"  matInput type="text"   formControlName="phoneNumber"/>
+    <mat-error style="color: blueviolet" *ngIf="form.get('phoneNumber').invalid" >Please Enter phoneNumber </mat-error>
+  </mat-form-field  ><br>
+
+    <mat-form-field><br>
+    <input placeholder="Enter lastName:"  matInput type="text"      formControlName="lastName" />
+    <mat-error style="color: blueviolet" *ngIf="form.get('lastName').invalid" >Please Enter lastName </mat-error>
+
+  </mat-form-field  ><br>
+
+  <mat-form-field><br>
+    <input placeholder="Enter userName:"  matInput type="text"      formControlName="userName" />
+    <mat-error style="color: blueviolet" *ngIf="form.get('userName').invalid" >Please Enter userName </mat-error>
+    
+  
+
+    
+  
+  </mat-form-field><br><br>
+
+
+  <!-- <mat-select placeholder="Pick a Role" formControlName="role"  >
+    
+    <mat-option  >user</mat-option>
+    <mat-option   >admin</mat-option>
+    <mat-option   >manager</mat-option>
+    <p>You selected:</p>
+  </mat-select> -->
+
+ 
+  
+  <!-- <p *ngIf="isAdmin" [(ngModel)]="{{selected}}" >You selected: {{selected}}</p> -->
+
+  <button mat-raised-button
+          color="primary"
+          type="submit" >Save User</button>
+
+        
+
+</form>
+<mat-form-field appearance="fill" *ngIf="isAdmin">
+  <mat-label>Select an option</mat-label>
+  <mat-select (valueChange)="changeValue($event)" [(value)]="selected">
+    <mat-option>None</mat-option>
+ <mat-option *ngFor="let role of roles" [value]="role.title">{{role.title}}</mat-option>
+
+  </mat-select>
+</mat-form-field>
+</mat-card> 
+
+

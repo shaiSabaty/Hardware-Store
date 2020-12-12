@@ -1,0 +1,51 @@
+
+<!-- 
+<form>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Email address</label> -->
+      <!-- <h1>Hello User:{{userName}}</h1>
+<h1>Details:</h1>
+<h3>First Name:{{firstName}}</h3>
+<h3>lastName:{{lastName}}</h3>
+<h3>email:{{email}}</h3>
+<h3>phoneNumber:{{phoneNumber}}</h3> -->
+     
+      <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+    </div>
+    
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form> -->
+
+  <h1>Profile Page</h1>
+
+  <form>
+    <div class="form-group">
+        <h1>Your Details:</h1>
+        <img id="imagePath" src={{imagePath}}>
+     
+      <h3>Email:{{email}}</h3>
+      <h3>First Name:{{firstName}}</h3>
+      <h3>last Name:{{lastName}}</h3>
+      <h3>phone Number:{{phoneNumber}}</h3>
+      <h3>User Name:{{userName}}</h3>
+      
+      <!-- <image src="{{}}""> -->
+      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+    </div>
+    
+
+     <button type="submit" class="btn btn-primary">     
+          <a  *ngIf="checkConnections()" [routerLink]="['/user/edit',_idUser]" mat-button color="primary">
+            Edit Profile
+          </a>
+      </button><br><br><br> 
+    <button type="submit" class="btn btn-primary">Go To Cart</button>
+    <button *ngIf="checkConnections()"  class="btn btn-primary" type="submit" (click)="onLogOut()"  mat-button>LogOut</button>
+
+    <button (click)="orderHistory()" type="submit" class="btn btn-primary"><h1>Order History</h1></button>
+    <!-- <pre *ngIf="auth.userProfile$ | async as profile">
+      <code>{{ profile | json }}</code>
+      </pre> -->
+
+  </form>
